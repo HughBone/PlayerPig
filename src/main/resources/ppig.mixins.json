@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hughbone.playerpig.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "PathAwareEntityMixin",
+    "PigEntityMixin",
+    "PlayerPigMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

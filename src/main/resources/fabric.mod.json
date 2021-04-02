@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "ppig",
+  "version": "${version}",
+
+  "name": "Player Pig Mod",
+  "description": "Turns players into pigs when they log out.",
+  "authors": [
+    "HughBone"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/ppig/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.hughbone.playerpig.PlayerPig"
+    ]
+  },
+  "mixins": [
+    "ppig.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.x"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
