@@ -27,13 +27,13 @@ public class PigfixCommand {
                             if (((PlayerPigExt) nearbyPig).isPlayerPig()) {
                                 nearbyPig.remove();
                                 PigList.getList().remove(nearbyPig);
-                                ctx.getSource().sendFeedback(new LiteralText("[Player Pig] Piggy Removed Successfully."), false);
+                                ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] Piggy removed successfully."), false);
                                 return 1;
                             }
                         }
                     }
                 } catch (Exception e) {}
-                ctx.getSource().sendFeedback(new LiteralText("[Player Pig] No Player Pigs Found."), false);
+                ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] No player pigs found."), false);
                 return 1;
             }));
 

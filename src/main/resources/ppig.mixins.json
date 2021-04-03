@@ -6,6 +6,7 @@
   "mixins": [
     "PathAwareEntityMixin",
     "PigEntityMixin",
+    "MinecraftServerMixin",
     "PlayerPigMixin"
   ],
   "client": [

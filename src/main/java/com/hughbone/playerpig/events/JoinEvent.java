@@ -6,8 +6,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 public class JoinEvent {
     public static void init() {
         ServerPlayConnectionEvents.JOIN.register((handler, packetSender, server) -> {
+
             if (!handler.player.isSpectator()) {
-                new PlayerJoin().join(handler.player); // Teleport player & Remove player pig
+                new PlayerJoin().join(handler.player); // Teleport player to pig and remove pig
             }
         });
     }

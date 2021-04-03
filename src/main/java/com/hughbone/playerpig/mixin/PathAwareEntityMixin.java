@@ -31,7 +31,7 @@ public abstract class PathAwareEntityMixin extends MobEntity implements PlayerPi
                     if (entity != null && entity.world == this.world) {
                         this.setPositionTarget(entity.getBlockPos(), 5);
                         float f = this.distanceTo(entity);
-                        if (f > 50.0F) { // 50 block lead breakage
+                        if (f > 50.0F) { // OKAY 50 BLOCK LEAD BREAKAGE
                             this.detachLeash(true, true);
                             this.goalSelector.disableControl(Goal.Control.MOVE);
                         } else if (f > 6.0F) {
