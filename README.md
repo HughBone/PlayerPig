@@ -17,7 +17,7 @@ Server-side Minecraft Fabric mod that spawns a pig with your username when you l
 * Players log in with fire resistance for 20 seconds if their pig is on fire.
     * If the dumbass pig walks into lava or something
 * PlayerPigs will be teleported to 0, 100, 0 (relative to their dimension) if they fall into the void.
-* Fix for a player logging in inside of a block.
+* Fix for players logging in inside a block.
 
 ### Requirements
 * Fabric API: https://www.curseforge.com/minecraft/mc-mods/fabric-api/files
