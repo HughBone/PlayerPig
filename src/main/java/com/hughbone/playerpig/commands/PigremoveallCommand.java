@@ -2,6 +2,7 @@ package com.hughbone.playerpig.commands;
 
 import com.hughbone.playerpig.piglist.PigList;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -50,7 +51,7 @@ public class PigremoveallCommand {
                             }
                             // Kill all player pigs
                             for (PigEntity pigEntity : PigList.getList()) {
-                                pigEntity.remove();
+                                pigEntity.remove(Entity.RemovalReason.KILLED);
                             }
                             // Stop forceloading chunk
                             if (pigInList.get(3).contains("overworld")) {

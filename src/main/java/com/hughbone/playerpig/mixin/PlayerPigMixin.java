@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.mixin;
 
 import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
 import com.hughbone.playerpig.PlayerPigExt;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,20 +16,20 @@ public abstract class PlayerPigMixin implements PlayerPigExt {
     private String matchingPlayerName = "";
     private String matchingPlayerUUID = "";
 
-    @Inject(method = "writeCustomDataToTag", at = @At("RETURN"))
-    public void writeCustomDataToTag (CompoundTag tag, CallbackInfo ci) {
+    @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
+    public void writeCustomDataToTag (NbtCompound nbt, CallbackInfo ci) {
         if (playerPig) {
-            tag.putBoolean("playerPig", playerPig);
-            tag.putString("playerName", matchingPlayerName);
-            tag.putString("playerUUID", matchingPlayerUUID);
+            nbt.putBoolean("playerPig", playerPig);
+            nbt.putString("playerName", matchingPlayerName);
+            nbt.putString("playerUUID", matchingPlayerUUID);
         }
     }
-    @Inject(method = "readCustomDataFromTag", at = @At("RETURN"))
-    public void readCustomDataFromTag (CompoundTag tag, CallbackInfo ci) {
-        playerPig = tag.getBoolean("playerPig");
+    @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
+    public void readCustomDataFromTag (NbtCompound nbt, CallbackInfo ci) {
+        playerPig = nbt.getBoolean("playerPig");
         if (playerPig) {
-            matchingPlayerName = tag.getString("playerName");
-            matchingPlayerUUID = tag.getString("playerUUID");
+            matchingPlayerName = nbt.getString("playerName");
+            matchingPlayerUUID = nbt.getString("playerUUID");
         }
     }
 

@@ -23,7 +23,7 @@ public class PigfixCommand {
                     if (entity.getType().equals(EntityType.PIG)) {
                         PigEntity nearbyPig = (PigEntity) entity;
                         if (((PlayerPigExt) nearbyPig).isPlayerPig()) {
-                            nearbyPig.remove();
+                            nearbyPig.remove(Entity.RemovalReason.KILLED);
                             PigList.getList().remove(nearbyPig);
                             ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] Piggy removed successfully."), false);
                             return 1;

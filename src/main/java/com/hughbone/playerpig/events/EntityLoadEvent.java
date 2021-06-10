@@ -3,6 +3,7 @@ package com.hughbone.playerpig.events;
 import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.piglist.PigList;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.PigEntity;
 
@@ -18,7 +19,7 @@ public class EntityLoadEvent {
 
                         // Legacy support - removes old player pigs
                         if (!pigLoaded.getScoreboardTags().isEmpty()) {
-                            pigLoaded.remove();
+                            pigLoaded.remove(Entity.RemovalReason.KILLED);
                             return;
                         }
                         for (PigEntity pigInList: PigList.getList()) {
@@ -30,7 +31,7 @@ public class EntityLoadEvent {
                                 }
                                 // Fix duplicate pigs (rarely happens, different UUIDs)
                                 else {
-                                    pigLoaded.remove();
+                                    pigLoaded.remove(Entity.RemovalReason.KILLED);
                                     PigList.getList().remove(pigLoaded);
                                 }
                                 return;

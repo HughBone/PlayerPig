@@ -38,7 +38,7 @@ public class PlayerJoin {
                             if (piggy.isOnFire()) {
                                 player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 400, 0, false, false));
                             }
-                            piggy.remove(); // Kill pig
+                            piggy.remove(Entity.RemovalReason.KILLED); // Kill pig
                             PigList.getList().remove(piggy); // Remove from PigList
                             joinSuccess = true;
                             break;
@@ -52,21 +52,12 @@ public class PlayerJoin {
     public void teleportPlayer(ServerPlayerEntity player) {
         for (PigEntity pigInList : PigList.getList()) {
             if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
-                player.teleport(player.getServer().getWorld(pigInList.getEntityWorld().getRegistryKey()), pigInList.getX(), pigInList.getY(), pigInList.getZ(), player.yaw, player.pitch);
+                player.teleport(player.getServer().getWorld(pigInList.getEntityWorld().getRegistryKey()), pigInList.getX(), pigInList.getY(), pigInList.getZ(), player.getYaw(), player.getPitch());
                 player.updatePosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
                 player.updateTrackedPosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
                 break;
             }
         }
-        /* OLD FUNCTIONALITY
-        if (!inPigList) {
-            try {
-                LoadPigList.playerNotInPigList(player); // Tries to teleport to position saved in PlayerPig_Data
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-         */
     }
 
     public class JoinThread implements Runnable {
