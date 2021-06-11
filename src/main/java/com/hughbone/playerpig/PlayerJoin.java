@@ -87,21 +87,6 @@ public class PlayerJoin {
                 player.updatePosition(player.getX(), newY, player.getZ());
                 player.updateTrackedPosition(player.getX(), newY, player.getZ());
             }
-            /* OLD FUNCTIONALITY
-            // Remove file from PlayerPig_Data
-            try {
-                RemoveFile.remove(player.getUuidAsString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // Remove all matching from PigList + in world
-            for (PigEntity pigInList: PigList.getList()) {
-                if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
-                    pigInList.remove();
-                    PigList.getList().remove(pigInList);
-                }
-            }
-             */
         }
     }
 
