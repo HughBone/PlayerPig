@@ -14,51 +14,6 @@ public class LoadPigList {
         } catch (Exception e) {}
     }
 
-    /* OLD FUNCTIONALITY - NOT NECCESSARY BECAUSE ALL UNLOADED PIGS GET STORED IN MEMORY AT START EVENT
-    public static void playerNotInPigList(ServerPlayerEntity player) throws IOException {
-        createDataFolder();
-        try {
-            File dir = new File(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data");
-            File[] listDir = dir.listFiles();
-            if (listDir != null) {
-                for (File child : listDir) {
-                    if (child.getName().toString().contains(player.getUuidAsString())) {
-                        String fineLine;
-                        double posX = 0;
-                        double posY = 0;
-                        double posZ = 0;
-                        BufferedReader file = new BufferedReader(new FileReader(child));
-
-                        for (int i = 0; i < 4; i++) {
-                            fineLine = file.readLine();
-                            if (i == 0) {
-                                posX = Double.parseDouble(fineLine);
-                            } else if (i == 1) {
-                                posY = Double.parseDouble(fineLine);
-                            } else if (i == 2) {
-                                posZ = Double.parseDouble(fineLine);
-                            } else if (i == 3) {
-                                if (fineLine.contains("overworld")) {
-                                    player.teleport(player.getServer().getWorld(ServerWorld.OVERWORLD), posX, posY, posZ, player.yaw, player.pitch);
-                                } else if (fineLine.contains("the_nether")) {
-                                    player.teleport(player.getServer().getWorld(ServerWorld.NETHER), posX, posY, posZ, player.yaw, player.pitch);
-                                } else if (fineLine.contains("the_end")) {
-                                    player.teleport(player.getServer().getWorld(ServerWorld.END), posX, posY, posZ, player.yaw, player.pitch);
-                                }
-                                player.updatePosition(posX, posY, posZ);
-                                player.updateTrackedPosition(posX, posY, posZ);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
-     */
-
     public static void deleteAll() {
         createDataFolder();
         try {
@@ -98,13 +53,7 @@ public class LoadPigList {
                             temp.add(""+ posX);
                             temp.add(""+ posY);
                             temp.add(""+ posZ);
-                            if (fineLine.contains("overworld")) {
-                                temp.add("overworld");
-                            } else if (fineLine.contains("the_nether")) {
-                                temp.add("the_nether");
-                            } else if (fineLine.contains("the_end")) {
-                                temp.add("the_end");
-                            }
+                            temp.add(fineLine);
                             pigDataList.add(temp);
                         }
                     }
