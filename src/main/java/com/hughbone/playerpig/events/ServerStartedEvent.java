@@ -8,6 +8,7 @@ import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.world.ServerWorld;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ServerStartedEvent {
     public static Team noCollision;
     public static Scoreboard teamScoreboard;
 
-    private void loadAndUnloadChunk() {
+    private void loadUnloadChunk() {
         try {
             CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
 
@@ -27,16 +28,16 @@ public class ServerStartedEvent {
                 int posX = (int) Double.parseDouble(unloadedPiggy.get(0));
                 int posZ = (int) Double.parseDouble(unloadedPiggy.get(2));
 
-                // Temporarily load chunk so that EntityLoadEvent can add pig to PigList
-                if (unloadedPiggy.get(3).equals("overworld")) {
-                    cm.getDispatcher().execute("execute in minecraft:overworld run forceload add " + posX + " " + posZ, server.getCommandSource());
-                    cm.getDispatcher().execute("execute in minecraft:overworld run forceload remove all", server.getCommandSource());
-                } else if (unloadedPiggy.get(3).equals("the_nether")) {
-                    cm.getDispatcher().execute("execute in minecraft:the_nether run forceload add " + posX + " " + posZ, server.getCommandSource());
-                    cm.getDispatcher().execute("execute in minecraft:the_nether run forceload remove all", server.getCommandSource());
-                } else if (unloadedPiggy.get(3).equals("the_end")) {
-                    cm.getDispatcher().execute("execute in minecraft:the_end run forceload add " + posX + " " + posZ, server.getCommandSource());
-                    cm.getDispatcher().execute("execute in minecraft:the_end run forceload remove all", server.getCommandSource());
+                // Temporarily load chunk in correct dimension so EntityLoadEvent adds pig to PigList
+                Iterable<ServerWorld> worlds = server.getWorlds();
+                for (ServerWorld sw : worlds) {
+                    String dimension = sw.getRegistryKey().getValue().toString();
+                    if (unloadedPiggy.get(3).equals(dimension)) {
+                        cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + posZ, server.getCommandSource());
+                        Thread.sleep(100);
+                        cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + posZ, server.getCommandSource());
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {}
@@ -50,7 +51,7 @@ public class ServerStartedEvent {
                     System.out.println("[PlayerPig] PLEASE WAIT " + i + " SECONDS OR LESS!");
                 }
                 try {
-                    loadAndUnloadChunk();
+                    loadUnloadChunk();
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -70,6 +71,7 @@ public class ServerStartedEvent {
             } catch (Exception e){}
             noCollision = teamScoreboard.getTeam("nocollision");
             noCollision.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
+
             // Temporarily load chunks so that EntityLoadEvent can add pigs to PigList
             List<List<String>> unloadedPigList = LoadPigList.getAllData();
             if (!unloadedPigList.isEmpty()) {
