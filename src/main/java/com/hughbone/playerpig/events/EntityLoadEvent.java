@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.PlayerPigExt;
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -17,29 +17,24 @@ public class EntityLoadEvent {
                     if (((PlayerPigExt) entity).isPlayerPig()) {
                         PigEntity pigLoaded = (PigEntity) entity;
 
-                        // Legacy support - removes old player pigs
-                        if (!pigLoaded.getScoreboardTags().isEmpty()) {
-                            pigLoaded.remove(Entity.RemovalReason.KILLED);
-                            return;
-                        }
-                        for (PigEntity pigInList: PigList.getList()) {
+                        for (PigEntity pigInList : PPUtil.getList()) {
                             if (((PlayerPigExt) pigInList).getPlayerUUID().equals(((PlayerPigExt) pigLoaded).getPlayerUUID())) { // Check to see if the loaded pig's corresponding player matches one in PigList
                                 // Dimension change fix (Same UUID, different dimension)
                                 if (pigInList.getUuid().equals(pigLoaded.getUuid())) {
-                                    PigList.getList().remove(pigInList);
-                                    PigList.appendList(pigLoaded);
+                                    PPUtil.getList().remove(pigInList);
+                                    PPUtil.appendList(pigLoaded);
                                 }
                                 // Fix duplicate pigs (rarely happens, different UUIDs)
                                 else {
                                     pigLoaded.remove(Entity.RemovalReason.KILLED);
-                                    PigList.getList().remove(pigLoaded);
+                                    PPUtil.getList().remove(pigLoaded);
                                 }
                                 return;
                             }
                         }
 
                         // Add loaded player pig into PigList if not already there
-                        PigList.appendList(pigLoaded);
+                        PPUtil.appendList(pigLoaded);
                     }
                 }
             } catch (Exception e) {}
