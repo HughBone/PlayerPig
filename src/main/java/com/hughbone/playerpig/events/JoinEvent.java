@@ -1,7 +1,6 @@
 package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.PlayerPigExt;
-import com.hughbone.playerpig.piglist.PigList;
 import com.hughbone.playerpig.util.PPUtil;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -60,7 +59,7 @@ public class JoinEvent {
                                     player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 400, 0, false, false));
                                 }
                                 piggy.remove(Entity.RemovalReason.KILLED); // Kill pig
-                                PigList.getList().remove(piggy); // Remove from PigList
+                                PPUtil.getList().remove(piggy); // Remove from PigList
                                 joinSuccess = true;
                                 break;
                             }
@@ -72,7 +71,7 @@ public class JoinEvent {
 
         public boolean teleportPlayer(ServerPlayerEntity player) {
 
-            for (PigEntity pigInList : PigList.getList()) {
+            for (PigEntity pigInList : PPUtil.getList()) {
                 if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
                     try {
                         CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);

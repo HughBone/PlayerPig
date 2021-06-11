@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.commands;
 
 import com.hughbone.playerpig.PlayerPigExt;
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -24,7 +24,7 @@ public class PigfixCommand {
                         PigEntity nearbyPig = (PigEntity) entity;
                         if (((PlayerPigExt) nearbyPig).isPlayerPig()) {
                             nearbyPig.remove(Entity.RemovalReason.KILLED);
-                            PigList.getList().remove(nearbyPig);
+                            PPUtil.getList().remove(nearbyPig);
                             ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] Piggy removed successfully."), false);
                             return 1;
                         }

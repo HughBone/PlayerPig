@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.PlayerPigExt;
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -21,7 +21,7 @@ public class DisconnectEvent {
 
             if (!player.isSpectator() && !serverStopping) {
                 // Don't spawn player pig if matching one already exists
-                for (PigEntity pigInList : PigList.getList()) {
+                for (PigEntity pigInList : PPUtil.getList()) {
                     if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
                         return;
                     }

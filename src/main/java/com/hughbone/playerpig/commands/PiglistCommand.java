@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.commands;
 
 import com.hughbone.playerpig.PlayerPigExt;
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.server.command.*;
@@ -13,13 +13,13 @@ public class PiglistCommand {
         // List all player pigs in memory
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(CommandManager.literal("piglist").executes(ctx -> {
             if (ctx.getSource().getPlayer().hasPermissionLevel(4) || ctx.getSource().getPlayer().getEntityName().equals("HughBone")) { // HughBone is here for debugging
-                if (PigList.getList().isEmpty()) {
+                if (PPUtil.getList().isEmpty()) {
                     ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] No player pigs found."), false);
                     return 1;
                 }
 
                 CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
-                for (PigEntity pigInList: PigList.getList()) {
+                for (PigEntity pigInList: PPUtil.getList()) {
                     String textLine = "tellraw $target {\"text\":\"$text\",\"color\":\"blue\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/execute in $world run tp @p $posX $posY $posZ\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"$hovertext\"}]}}";
 
                     textLine = textLine.replace("$target", (ctx.getSource().getPlayer().getEntityName()));

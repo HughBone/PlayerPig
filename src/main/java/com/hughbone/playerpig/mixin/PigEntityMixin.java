@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.mixin;
 
 import com.hughbone.playerpig.PlayerPigExt;
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
@@ -9,7 +9,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.server.command.TeleportCommand;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
@@ -41,7 +40,7 @@ public abstract class PigEntityMixin extends LivingEntity {
     public void stopPPDeath(CallbackInfoReturnable<SoundEvent> cir) {
         // Allow pig to die from /kill command
         if (String.valueOf(lastDamageTaken).equals("3.4028235E38")) {
-            PigList.getList().remove(this);
+            PPUtil.getList().remove(this);
         }
         else {
             if (((PlayerPigExt) this).isPlayerPig()) {

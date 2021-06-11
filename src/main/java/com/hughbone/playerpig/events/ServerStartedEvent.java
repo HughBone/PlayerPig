@@ -1,7 +1,7 @@
 package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.piglist.LoadPigList;
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
@@ -52,7 +52,7 @@ public class ServerStartedEvent {
         }
 
         public void run() {
-            for (int i = 6; i > 0 && unloadedPigList.size() != PigList.getList().size(); i--) {
+            for (int i = 6; i > 0 && unloadedPigList.size() != PPUtil.getList().size(); i--) {
                 if (i < 5) {
                     System.out.println("[PlayerPig] PLEASE WAIT " + i + " SECONDS OR LESS!");
                 }

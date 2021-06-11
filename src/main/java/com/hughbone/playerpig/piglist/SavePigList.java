@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import com.hughbone.playerpig.util.PPUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.world.World;
@@ -21,7 +22,7 @@ public class SavePigList extends PigEntity{
             Files.createDirectory(Paths.get(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data"));
         } catch(Exception e){}
 
-        for (PigEntity piggy: PigList.getList()) {
+        for (PigEntity piggy : PPUtil.getList()) {
             try {
                 // File name is the pig's UUID
                 BufferedWriter file = new BufferedWriter(

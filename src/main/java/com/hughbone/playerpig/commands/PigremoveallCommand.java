@@ -1,6 +1,6 @@
 package com.hughbone.playerpig.commands;
 
-import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.PigEntity;
@@ -20,14 +20,14 @@ public class PigremoveallCommand {
                 .executes(ctx -> {
             if (ctx.getSource().hasPermissionLevel(4)) {
                 ServerPlayerEntity player = ctx.getSource().getPlayer();
-                if (PigList.getList().isEmpty()) {
+                if (PPUtil.getList().isEmpty()) {
                     ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] No player pigs found."), false);
                     return 1;
                 }
                 else {
                     // Make a copy of pos/dimension data in PigList so that no fuckyness happens (i.e. the list changing w/o my consent #metoo)
                     List<List<String>> pigDataList = new ArrayList<List<String>>();
-                    for (PigEntity pigInList : PigList.getList()) {
+                    for (PigEntity pigInList : PPUtil.getList()) {
                         List<String> temp = new ArrayList<String>();
                         temp.add(""+ pigInList.getX());
                         temp.add(""+ pigInList.getY());
@@ -50,7 +50,7 @@ public class PigremoveallCommand {
                                 cm.getDispatcher().execute("execute in minecraft:the_end run forceload add " + posX + " " + posZ, player.getServer().getCommandSource());
                             }
                             // Kill all player pigs
-                            for (PigEntity pigEntity : PigList.getList()) {
+                            for (PigEntity pigEntity : PPUtil.getList()) {
                                 pigEntity.remove(Entity.RemovalReason.KILLED);
                             }
                             // Stop forceloading chunk
@@ -62,9 +62,9 @@ public class PigremoveallCommand {
                                 cm.getDispatcher().execute("execute in minecraft:the_end run forceload remove all", player.getServer().getCommandSource());
                             }
                         }
-                        PigList.getList().clear();
+                        PPUtil.getList().clear();
                         // Result message
-                        if (PigList.getList().isEmpty())
+                        if (PPUtil.getList().isEmpty())
                             player.sendMessage(new LiteralText("[PlayerPig] All player pigs removed!"), false);
                         else
                             player.sendMessage(new LiteralText("[PlayerPig] Error: Not all player pigs removed. Please run this command again."), false);
