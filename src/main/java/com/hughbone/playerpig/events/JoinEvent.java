@@ -111,6 +111,9 @@ public class JoinEvent {
                 double newY = player.getY() + 10;
                 player.updatePosition(player.getX(), newY, player.getZ());
                 player.updateTrackedPosition(player.getX(), newY, player.getZ());
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) { break; }
             }
         }
     }
