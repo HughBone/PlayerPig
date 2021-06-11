@@ -1,7 +1,8 @@
 package com.hughbone.playerpig;
 
-import com.hughbone.playerpig.events.ServerStartedEvent;
 import com.hughbone.playerpig.piglist.PigList;
+import com.hughbone.playerpig.util.PPUtil;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -10,7 +11,9 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.GameRules;
 
 import java.util.List;
 
@@ -49,15 +52,26 @@ public class PlayerJoin {
         } catch (Exception e) {}
     }
 
-    public void teleportPlayer(ServerPlayerEntity player) {
+    public boolean teleportPlayer(ServerPlayerEntity player) {
+
         for (PigEntity pigInList : PigList.getList()) {
             if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
-                player.teleport(player.getServer().getWorld(pigInList.getEntityWorld().getRegistryKey()), pigInList.getX(), pigInList.getY(), pigInList.getZ(), player.getYaw(), player.getPitch());
-                player.updatePosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
-                player.updateTrackedPosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
-                break;
+                try {
+                    CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
+
+                    boolean sendCommandFB = player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
+                    player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer());
+
+                    cm.getDispatcher().execute("execute in " + pigInList.world.getRegistryKey().getValue().toString() + " run tp "
+                            + player.getEntityName() + " " + pigInList.getX() + " " + pigInList.getY() + " " + pigInList.getZ()
+                            , player.getServer().getCommandSource());
+                    player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer());
+                    return true;
+
+                } catch (CommandSyntaxException e){}
             }
         }
+        return false;
     }
 
     public class JoinThread implements Runnable {
@@ -68,21 +82,22 @@ public class PlayerJoin {
         }
 
         public void run() {
-            ServerStartedEvent.teamScoreboard.addPlayerToTeam(player.getEntityName(), ServerStartedEvent.noCollision); // Stop player from getting pushed by pig
-            for (int i = 0; i < 4; i++) {
+            PPUtil.joinNoCollision(player, player.getServer()); // Stop player from getting pushed by pig
+            while(!joinSuccess) {
                 try {
-                    Thread.sleep(1000);
-                    teleportPlayer(player); // Teleport to pig
+                    Thread.sleep(200);
+                    // Teleport if matching player pig exists, if not then break
+                    if (!teleportPlayer(player)) break;
                     Thread.sleep(50);
                     killPig(player); // Kill matching pig
                     if (joinSuccess) break;
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {}
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) { break; }
             }
+            PPUtil.leaveNoCollision(player, player.getServer()); // Let player get pushed again
 
-            ServerStartedEvent.teamScoreboard.removePlayerFromTeam(player.getEntityName(), ServerStartedEvent.noCollision); // Let player get pushed again
             // Fix if player is suffocating
-            while (player.isInsideWall()) {
+            while (player.isInsideWall() && joinSuccess) {
                 double newY = player.getY() + 10;
                 player.updatePosition(player.getX(), newY, player.getZ());
                 player.updateTrackedPosition(player.getX(), newY, player.getZ());
