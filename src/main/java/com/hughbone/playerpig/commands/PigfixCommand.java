@@ -11,6 +11,8 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.LiteralText;
 import java.util.List;
 
+import static net.minecraft.entity.Entity.RemovalReason.DISCARDED;
+
 public class PigfixCommand {
 
     public static void init() {
@@ -25,7 +27,7 @@ public class PigfixCommand {
                         if (entity.getType().equals(EntityType.PIG)) {
                             PigEntity nearbyPig = (PigEntity) entity;
                             if (((PlayerPigExt) nearbyPig).isPlayerPig()) {
-                                nearbyPig.remove();
+                                nearbyPig.remove(DISCARDED);
                                 PigList.getList().remove(nearbyPig);
                                 ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] Piggy removed successfully."), false);
                                 return 1;

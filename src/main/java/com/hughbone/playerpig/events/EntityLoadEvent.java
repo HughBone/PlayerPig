@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.PigEntity;
 
+import static net.minecraft.entity.Entity.RemovalReason.DISCARDED;
+
 // Adds to PigList, fixes dimension change, fixes duplicate pig fuckyness
 public class EntityLoadEvent {
 
@@ -18,7 +20,7 @@ public class EntityLoadEvent {
 
                         // Legacy support - removes old player pigs
                         if (!pigLoaded.getScoreboardTags().isEmpty()) {
-                            pigLoaded.remove();
+                            pigLoaded.remove(DISCARDED);
                             return;
                         }
                         for (PigEntity pigInList: PigList.getList()) {
@@ -30,7 +32,7 @@ public class EntityLoadEvent {
                                 }
                                 // Fix duplicate pigs (rarely happens, different UUIDs)
                                 else {
-                                    pigLoaded.remove();
+                                    pigLoaded.remove(DISCARDED);
                                     PigList.getList().remove(pigLoaded);
                                 }
                                 return;

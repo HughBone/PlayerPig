@@ -14,6 +14,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.List;
 
+import static net.minecraft.entity.Entity.RemovalReason.DISCARDED;
+
 public class PlayerJoin {
     private boolean joinSuccess = false;
 
@@ -30,7 +32,7 @@ public class PlayerJoin {
                             if (piggy.isLeashed()) {
                                 ItemEntity item = EntityType.ITEM.create(player.world);
                                 item.setStack(new ItemStack(Items.LEAD, 1));
-                                item.updatePosition(piggy.getX(), piggy.getY(), piggy.getZ());
+                                item.setPosition(piggy.getX(), piggy.getY(), piggy.getZ());
                                 item.updateTrackedPosition(piggy.getX(), piggy.getY(), piggy.getZ());
                                 player.world.spawnEntity(item);
                             }
@@ -38,7 +40,7 @@ public class PlayerJoin {
                             if (piggy.isOnFire()) {
                                 player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 400, 0, false, false));
                             }
-                            piggy.remove(); // Kill pig
+                            piggy.remove(DISCARDED); // Kill pig
                             PigList.getList().remove(piggy); // Remove from PigList
                             joinSuccess = true;
                             break;
@@ -52,8 +54,8 @@ public class PlayerJoin {
     public void teleportPlayer(ServerPlayerEntity player) {
         for (PigEntity pigInList : PigList.getList()) {
             if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
-                player.teleport(player.getServer().getWorld(pigInList.getEntityWorld().getRegistryKey()), pigInList.getX(), pigInList.getY(), pigInList.getZ(), player.yaw, player.pitch);
-                player.updatePosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
+                player.teleport(player.getServer().getWorld(pigInList.getEntityWorld().getRegistryKey()), pigInList.getX(), pigInList.getY(), pigInList.getZ(), player.getYaw(), player.getPitch());
+                player.setPosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
                 player.updateTrackedPosition(pigInList.getX(), pigInList.getY(), pigInList.getZ());
                 break;
             }
@@ -93,7 +95,7 @@ public class PlayerJoin {
             // Fix if player is suffocating
             while (player.isInsideWall()) {
                 double newY = player.getY() + 10;
-                player.updatePosition(player.getX(), newY, player.getZ());
+                player.setPosition(player.getX(), newY, player.getZ());
                 player.updateTrackedPosition(player.getX(), newY, player.getZ());
             }
             /* OLD FUNCTIONALITY

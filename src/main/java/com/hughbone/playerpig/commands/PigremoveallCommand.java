@@ -10,6 +10,8 @@ import net.minecraft.text.LiteralText;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.minecraft.entity.Entity.RemovalReason.DISCARDED;
+
 public class PigremoveallCommand {
 
     public static void init() {
@@ -51,7 +53,7 @@ public class PigremoveallCommand {
                                 }
                                 // Kill all player pigs
                                 for (PigEntity pigEntity : PigList.getList()) {
-                                    pigEntity.remove();
+                                    pigEntity.remove(DISCARDED);
                                 }
                                 // Stop forceloading chunk
                                 if (pigInList.get(3).contains("overworld")) {

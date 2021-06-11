@@ -39,7 +39,7 @@ public class DisconnectEvent {
                 playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
 
                 // Spawn player pig in world
-                playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
+                playerPig.setPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
                 playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
                 player.world.spawnEntity(playerPig);
             }

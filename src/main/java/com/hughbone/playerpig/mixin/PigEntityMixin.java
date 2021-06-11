@@ -45,14 +45,14 @@ public abstract class PigEntityMixin extends LivingEntity {
         try {
             if (((PlayerPigExt) this).isPlayerPig()) {
                 if (source.isOutOfWorld()) {
-                    this.updatePosition(0, 100, 0);
+                    this.setPosition(0, 100, 0);
                     this.updateTrackedPosition(0, 100, 0);
                     this.setHealth(20F);
                     this.setVelocity(Vec3d.ZERO);
 
                     while (this.isInsideWall()) {
                         double newY = this.getY() + 10;
-                        this.updatePosition(this.getX(), newY, this.getZ());
+                        this.setPosition(this.getX(), newY, this.getZ());
                         this.updateTrackedPosition(this.getX(), newY, this.getZ());
                     }
                 }
