@@ -7,6 +7,7 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,13 @@ public class PPUtil {
 
     private static List<PigEntity> pigList = new ArrayList<PigEntity>();
 
-    public static List<PigEntity> getList() {
+    public static List<PigEntity> getPigList() {
         return pigList;
     }
 
-    public static void appendList(PigEntity pig) {
-        pigList.add(pig);
+    public static void removeFile(String filename) {
+        File f = new File(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data" + File.separator + filename);
+        f.delete();
     }
 
     public static void joinNoCollision(ServerPlayerEntity player, MinecraftServer server) {
