@@ -8,6 +8,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,25 @@ public class PPUtil {
 
     public static List<PigEntity> getPigList() {
         return pigList;
+    }
+
+    public static void createDataFolder() {
+        try {
+            Files.createDirectory(Paths.get(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data"));
+        } catch (Exception e) {}
+    }
+
+    public static void deleteAllFiles() {
+        createDataFolder();
+        try {
+            File dir = new File(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data");
+            File[] listDir = dir.listFiles();
+            if (listDir != null) {
+                for (File child : listDir) {
+                    child.delete();
+                }
+            }
+        } catch (Exception e) {}
     }
 
     public static void removeFile(String filename) {
