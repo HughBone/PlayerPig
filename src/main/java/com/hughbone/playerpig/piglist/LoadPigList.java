@@ -1,21 +1,15 @@
 package com.hughbone.playerpig.piglist;
 
+import com.hughbone.playerpig.util.PPUtil;
+
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoadPigList {
 
-    private static void createDataFolder() {
-        try {
-            Files.createDirectory(Paths.get(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data"));
-        } catch (Exception e) {}
-    }
-
     public static List<List<String>> getAllData() {
-        createDataFolder();
+        PPUtil.createDataFolder();
         List<List<String>> pigDataList = new ArrayList<List<String>>();
         try {
             File dir = new File(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data");
