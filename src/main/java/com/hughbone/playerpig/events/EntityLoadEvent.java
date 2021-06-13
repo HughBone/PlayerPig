@@ -17,24 +17,24 @@ public class EntityLoadEvent {
                     if (((PlayerPigExt) entity).isPlayerPig()) {
                         PigEntity pigLoaded = (PigEntity) entity;
 
-                        for (PigEntity pigInList : PPUtil.getList()) {
+                        for (PigEntity pigInList : PPUtil.getPigList()) {
                             if (((PlayerPigExt) pigInList).getPlayerUUID().equals(((PlayerPigExt) pigLoaded).getPlayerUUID())) { // Check to see if the loaded pig's corresponding player matches one in PigList
                                 // Dimension change fix (Same UUID, different dimension)
                                 if (pigInList.getUuid().equals(pigLoaded.getUuid())) {
-                                    PPUtil.getList().remove(pigInList);
-                                    PPUtil.appendList(pigLoaded);
+                                    PPUtil.getPigList().remove(pigInList);
+                                    PPUtil.getPigList().add(pigLoaded);
                                 }
                                 // Fix duplicate pigs (rarely happens, different UUIDs)
                                 else {
                                     pigLoaded.remove(Entity.RemovalReason.KILLED);
-                                    PPUtil.getList().remove(pigLoaded);
+                                    PPUtil.getPigList().remove(pigLoaded);
                                 }
                                 return;
                             }
                         }
 
                         // Add loaded player pig into PigList if not already there
-                        PPUtil.appendList(pigLoaded);
+                        PPUtil.getPigList().add(pigLoaded);
                     }
                 }
             } catch (Exception e) {}

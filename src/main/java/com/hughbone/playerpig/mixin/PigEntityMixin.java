@@ -40,7 +40,7 @@ public abstract class PigEntityMixin extends LivingEntity {
     public void stopPPDeath(CallbackInfoReturnable<SoundEvent> cir) {
         // Allow pig to die from /kill command
         if (String.valueOf(lastDamageTaken).equals("3.4028235E38")) {
-            PPUtil.getList().remove(this);
+            PPUtil.getPigList().remove((PigEntity)(Object)this);
         }
         else {
             if (((PlayerPigExt) this).isPlayerPig()) {

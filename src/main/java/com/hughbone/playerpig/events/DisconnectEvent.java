@@ -21,7 +21,7 @@ public class DisconnectEvent {
 
             if (!player.isSpectator() && !serverStopping) {
                 // Don't spawn player pig if matching one already exists
-                for (PigEntity pigInList : PPUtil.getList()) {
+                for (PigEntity pigInList : PPUtil.getPigList()) {
                     if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
                         return;
                     }
