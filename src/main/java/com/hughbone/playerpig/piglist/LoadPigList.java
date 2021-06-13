@@ -14,19 +14,6 @@ public class LoadPigList {
         } catch (Exception e) {}
     }
 
-    public static void deleteAll() {
-        createDataFolder();
-        try {
-            File dir = new File(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data");
-            File[] listDir = dir.listFiles();
-            if (listDir != null) {
-                for (File child : listDir) {
-                    child.delete();
-                }
-            }
-        } catch (Exception e) {}
-    }
-
     public static List<List<String>> getAllData() {
         createDataFolder();
         List<List<String>> pigDataList = new ArrayList<List<String>>();
@@ -54,6 +41,7 @@ public class LoadPigList {
                             temp.add(""+ posY);
                             temp.add(""+ posZ);
                             temp.add(fineLine);
+                            temp.add(child.getName());
                             pigDataList.add(temp);
                         }
                     }
