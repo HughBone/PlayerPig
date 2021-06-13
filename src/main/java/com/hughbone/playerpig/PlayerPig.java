@@ -16,7 +16,6 @@ public class PlayerPig implements ModInitializer {
         PigremoveallCommand.init();
 
         // Load Events
-        new ServerStartedEvent().init();
         DisconnectEvent.init();
         EntityLoadEvent.init();
         JoinEvent.init();
