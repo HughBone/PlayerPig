@@ -1,6 +1,7 @@
 package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.PlayerPigExt;
+import com.hughbone.playerpig.piglist.LoadPigList;
 import com.hughbone.playerpig.util.PPUtil;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -14,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameRules;
 
 import java.util.List;
@@ -21,7 +23,6 @@ import java.util.List;
 public class JoinEvent {
     public static void init() {
         ServerPlayConnectionEvents.JOIN.register((handler, packetSender, server) -> {
-
             if (!handler.player.isSpectator()) {
                 Runnable begin = new JoinThread(handler.player);
                 new Thread(begin).start(); // Teleport player to pig and remove pig
@@ -59,7 +60,7 @@ public class JoinEvent {
                                     player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 400, 0, false, false));
                                 }
                                 piggy.remove(Entity.RemovalReason.KILLED); // Kill pig
-                                PPUtil.getList().remove(piggy); // Remove from PigList
+                                PPUtil.getPigList().remove(piggy); // Remove from PigList
                                 joinSuccess = true;
                                 break;
                             }
@@ -69,9 +70,43 @@ public class JoinEvent {
             } catch (Exception e) {}
         }
 
-        public boolean teleportPlayer(ServerPlayerEntity player) {
+        public boolean loadFromData() {
+            List<List<String>> unloadedPigList = LoadPigList.getAllData();
+            if (!unloadedPigList.isEmpty()) {
+                CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
+                for (List<String> unloadedPiggy : unloadedPigList) {
+                    if (unloadedPiggy.get(4).equals(player.getUuidAsString())) {
+                        int posX = (int) Double.parseDouble(unloadedPiggy.get(0));
+                        int posZ = (int) Double.parseDouble(unloadedPiggy.get(2));
 
-            for (PigEntity pigInList : PPUtil.getList()) {
+                        // Temporarily load chunk in correct dimension so EntityLoadEvent adds pig to PigList
+                        Iterable<ServerWorld> worlds = player.getServer().getWorlds();
+                        for (ServerWorld sw : worlds) {
+                            String dimension = sw.getRegistryKey().getValue().toString();
+                            if (unloadedPiggy.get(3).equals(dimension)) {
+                                try {
+                                    boolean sendCommandFB = player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
+                                    player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer()); // set to false
+
+                                    cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + posZ, player.getServer().getCommandSource());
+                                    Thread.sleep(250);
+                                    cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + posZ, player.getServer().getCommandSource());
+
+                                    player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer()); // reset to original
+                                } catch (InterruptedException | CommandSyntaxException e) {}
+
+                                PPUtil.removeFile(unloadedPiggy.get(4)); // Remove PlayerPig_Data file
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public boolean teleportPlayer(ServerPlayerEntity player) {
+            for (PigEntity pigInList : PPUtil.getPigList()) {
                 if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
                     try {
                         CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
@@ -80,12 +115,11 @@ public class JoinEvent {
                         player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer());
 
                         cm.getDispatcher().execute("execute in " + pigInList.world.getRegistryKey().getValue().toString() + " run tp "
-                                        + player.getEntityName() + " " + pigInList.getX() + " " + pigInList.getY() + " " + pigInList.getZ()
+                                + player.getEntityName() + " " + pigInList.getX() + " " + pigInList.getY() + " " + pigInList.getZ()
                                 , player.getServer().getCommandSource());
                         player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer());
                         return true;
-
-                    } catch (CommandSyntaxException e){}
+                    } catch (CommandSyntaxException e) {}
                 }
             }
             return false;
@@ -93,16 +127,24 @@ public class JoinEvent {
 
         public void run() {
             PPUtil.joinNoCollision(player, player.getServer()); // Stop player from getting pushed by pig
-            while(!joinSuccess) {
+
+            try { Thread.sleep(250); } catch (InterruptedException e) {}
+            while (!joinSuccess && !player.isDisconnected()) {
                 try {
-                    Thread.sleep(200);
-                    // Teleport if matching player pig exists, if not then break
-                    if (!teleportPlayer(player)) break;
+
+                    if (!teleportPlayer(player)) { // Try to teleport player
+                        if (loadFromData()) { // If no PlayerPig found, force load chunk to store PlayerPig in PigList
+                            if (!teleportPlayer(player)) { // Try to teleport again
+                                break; // If PlayerPig still not found, break.
+                            }
+                        }
+                    }
+
                     Thread.sleep(50);
                     killPig(player); // Kill matching pig
                     if (joinSuccess) break;
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) { break; }
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {}
             }
             PPUtil.leaveNoCollision(player, player.getServer()); // Let player get pushed again
 
@@ -113,7 +155,9 @@ public class JoinEvent {
                 player.updateTrackedPosition(player.getX(), newY, player.getZ());
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException e) { break; }
+                } catch (InterruptedException e) {
+                    break;
+                }
             }
         }
     }
