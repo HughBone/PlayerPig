@@ -1,6 +1,7 @@
 package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.PlayerPigExt;
+import com.hughbone.playerpig.commands.PigremoveallCommand;
 import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.EntityType;
@@ -19,7 +20,7 @@ public class DisconnectEvent {
 
             ServerPlayerEntity player = handler.player;
 
-            if (!player.isSpectator() && !serverStopping) {
+            if (!player.isSpectator() && !serverStopping && PigremoveallCommand.allowPPSpawn) {
                 // Don't spawn player pig if matching one already exists
                 for (PigEntity pigInList : PPUtil.getPigList()) {
                     if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {

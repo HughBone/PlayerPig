@@ -1,6 +1,7 @@
 package com.hughbone.playerpig.mixin;
 
 import com.hughbone.playerpig.PlayerPigExt;
+import com.hughbone.playerpig.commands.PigremoveallCommand;
 import com.hughbone.playerpig.events.DisconnectEvent;
 import com.hughbone.playerpig.piglist.SavePigList;
 import net.minecraft.entity.EntityType;
@@ -29,7 +30,7 @@ public abstract class MinecraftServerMixin {
     @Inject(method = "stop", at = @At("HEAD"))
     private void stopMixin(boolean bl, CallbackInfo ci) throws InterruptedException {
 
-        if (!DisconnectEvent.serverStopping) { // Makes sure this only only runs one time
+        if (!DisconnectEvent.serverStopping && PigremoveallCommand.allowPPSpawn) { // Makes sure this only only runs one time
             DisconnectEvent.serverStopping = true; // Prevents DisconnectEvent from spawning pigs (DisconnectEvent is fucky when server stops)
             List<ServerPlayerEntity> playerList = playerManager.getPlayerList();
             // Spawn a pig for all players in world

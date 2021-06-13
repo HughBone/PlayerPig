@@ -16,6 +16,8 @@ import java.util.List;
 
 public class PigremoveallCommand {
 
+    public static boolean allowPPSpawn = true;
+
     public static void init() {
 
         Thread thread = new Thread() {
@@ -64,6 +66,8 @@ public class PigremoveallCommand {
                 })));
 
                 PPUtil.getPigList().clear(); // Clear all elements from the list
+                PPUtil.deleteAllFiles(); // delete straggler files
+                allowPPSpawn = false; // stop player pigs from spawning
             }
         };
 
