@@ -1,11 +1,14 @@
 package com.hughbone.playerpig.util;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.GameRules;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -61,6 +64,20 @@ public class PPUtil {
         Scoreboard teamScoreboard = server.getScoreboard();
         Team noCollision = teamScoreboard.getTeam("nocollision");
         teamScoreboard.removePlayerFromTeam(player.getEntityName(), noCollision); // Remove player from team
+    }
+
+    public static void loadPPDataChunks(ServerPlayerEntity player, String dimension, int posX, int PosZ) {
+        try {
+            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
+            boolean sendCommandFB = player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
+            player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer()); // set to false
+
+            cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + PosZ, player.getServer().getCommandSource());
+            Thread.sleep(250);
+            cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + PosZ, player.getServer().getCommandSource());
+
+            player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer()); // reset to original
+        } catch (InterruptedException | CommandSyntaxException e) {}
     }
 
 }
