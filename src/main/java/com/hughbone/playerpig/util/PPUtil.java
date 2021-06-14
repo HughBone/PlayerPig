@@ -66,17 +66,17 @@ public class PPUtil {
         teamScoreboard.removePlayerFromTeam(player.getEntityName(), noCollision); // Remove player from team
     }
 
-    public static void loadPPDataChunks(ServerPlayerEntity player, String dimension, int posX, int PosZ) {
+    public static void loadPPDataChunks(MinecraftServer server, String dimension, int posX, int PosZ) {
         try {
             CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
-            boolean sendCommandFB = player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
-            player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer()); // set to false
+            boolean sendCommandFB = server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
+            server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, server); // set to false
 
-            cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + PosZ, player.getServer().getCommandSource());
+            cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + PosZ, server.getCommandSource());
             Thread.sleep(250);
-            cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + PosZ, player.getServer().getCommandSource());
+            cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + PosZ, server.getCommandSource());
 
-            player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer()); // reset to original
+            server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, server); // reset to original
         } catch (InterruptedException | CommandSyntaxException e) {}
     }
 
