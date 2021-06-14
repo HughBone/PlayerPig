@@ -23,6 +23,7 @@ import java.util.List;
 public class JoinEvent {
     public static void init() {
         ServerPlayConnectionEvents.JOIN.register((handler, packetSender, server) -> {
+
             if (!handler.player.isSpectator()) {
                 Runnable begin = new JoinThread(handler.player);
                 new Thread(begin).start(); // Teleport player to pig and remove pig
@@ -84,17 +85,7 @@ public class JoinEvent {
                         for (ServerWorld sw : worlds) {
                             String dimension = sw.getRegistryKey().getValue().toString();
                             if (unloadedPiggy.get(3).equals(dimension)) {
-                                try {
-                                    boolean sendCommandFB = player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
-                                    player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer()); // set to false
-
-                                    cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + posZ, player.getServer().getCommandSource());
-                                    Thread.sleep(250);
-                                    cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + posZ, player.getServer().getCommandSource());
-
-                                    player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer()); // reset to original
-                                } catch (InterruptedException | CommandSyntaxException e) {}
-
+                                PPUtil.loadPPDataChunks(player.getServer(), dimension, posX, posZ);
                                 PPUtil.removeFile(unloadedPiggy.get(4)); // Remove PlayerPig_Data file
                                 return true;
                             }
@@ -108,6 +99,7 @@ public class JoinEvent {
         public boolean teleportPlayer(ServerPlayerEntity player) {
             for (PigEntity pigInList : PPUtil.getPigList()) {
                 if (((PlayerPigExt) pigInList).getPlayerUUID().equals(player.getUuidAsString())) {
+
                     try {
                         CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
 
@@ -128,24 +120,31 @@ public class JoinEvent {
         public void run() {
             PPUtil.joinNoCollision(player, player.getServer()); // Stop player from getting pushed by pig
 
-            try { Thread.sleep(250); } catch (InterruptedException e) {}
-            while (!joinSuccess && !player.isDisconnected()) {
-                try {
+            try { Thread.sleep(1000); } catch (InterruptedException e) {}
 
-                    if (!teleportPlayer(player)) { // Try to teleport player
-                        if (loadFromData()) { // If no PlayerPig found, force load chunk to store PlayerPig in PigList
-                            if (!teleportPlayer(player)) { // Try to teleport again
-                                break; // If PlayerPig still not found, break.
+            outer:
+            for (int i = 0; i < 2; i++) {
+                while (!joinSuccess && !player.isDisconnected()) {
+                    try {
+                        System.out.println("JoinLoop");
+                        if (!teleportPlayer(player)) { // Try to teleport player
+                            if (!loadFromData()) {
+                                Thread.sleep(5000);
+                                break;
+                            }
+                            else {
+                                Thread.sleep(1000);
+                                teleportPlayer(player);
                             }
                         }
-                    }
-
-                    Thread.sleep(50);
-                    killPig(player); // Kill matching pig
-                    if (joinSuccess) break;
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {}
+                        Thread.sleep(50);
+                        killPig(player); // Kill matching pig
+                        if (joinSuccess) break outer;
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) { break outer; }
+                }
             }
+
             PPUtil.leaveNoCollision(player, player.getServer()); // Let player get pushed again
 
             // Fix if player is suffocating
