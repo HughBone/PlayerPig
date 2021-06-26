@@ -35,7 +35,12 @@ public class PigremoveallCommand {
                         } catch (CommandSyntaxException e) {}
                         Iterable<ServerWorld> worlds = player.getServer().getWorlds();
 
-                        ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] Removing all PlayerPigs..."), false);
+                        try {
+                            ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] Removing all PlayerPigs (This may take a while...)"), false);
+                        } catch (CommandSyntaxException e) {
+                            e.printStackTrace();
+                        }
+
                         // Load all from data folder
                         List<List<String>> unloadedPigList = LoadPigList.getAllData();
 
@@ -52,6 +57,9 @@ public class PigremoveallCommand {
                                     break;
                                 }
                             }
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {}
                         }
 
                         // Kill all in piglist
@@ -65,11 +73,11 @@ public class PigremoveallCommand {
 
                                         cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + (int)piggy.getX() + " " + (int)piggy.getZ(), player.getServer().getCommandSource());
 
-                                        Thread.sleep(200);
+                                        Thread.sleep(500);
                                         for (PigEntity piggy2 : PPUtil.getPigList()) {
                                             piggy2.remove(Entity.RemovalReason.KILLED);
                                         }
-                                        Thread.sleep(50);
+                                        Thread.sleep(500);
                                         player.sendMessage(new LiteralText("PlayerPig " + ((PlayerPigExt) piggy).getPlayerName() + " was removed."), false);
                                         cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + (int)piggy.getX() + " " + (int)piggy.getZ(), player.getServer().getCommandSource());
 
@@ -81,7 +89,11 @@ public class PigremoveallCommand {
                         PPUtil.getPigList().clear(); // Clear all elements from the list
                         PPUtil.getPigList().clear(); // Clear all elements from the list
                         PPUtil.deleteAllFiles(); // delete straggler files
-                        ctx.getSource().sendFeedback(new LiteralText("[PlayerPig] All PlayerPigs removed. (PlayerPigs will not spawn until the server reloads.)"), false);
+                        try {
+                            ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] All PlayerPigs removed. (PlayerPigs will not spawn until the server reloads.)"), false);
+                        } catch (CommandSyntaxException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             };
