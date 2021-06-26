@@ -1,5 +1,6 @@
 package com.hughbone.playerpig.events;
 
+import com.hughbone.playerpig.PlayerExt;
 import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.commands.PigremoveallCommand;
 import com.hughbone.playerpig.util.PPUtil;
@@ -19,6 +20,7 @@ public class DisconnectEvent {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 
             ServerPlayerEntity player = handler.player;
+            ((PlayerExt) player).setJustJoined(false);
 
             if (!player.isSpectator() && !serverStopping && PigremoveallCommand.allowPPSpawn) {
                 // Don't spawn player pig if matching one already exists

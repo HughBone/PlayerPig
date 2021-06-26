@@ -2,12 +2,8 @@ package com.hughbone.playerpig.util;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameRules;
 
 import java.io.File;
@@ -48,24 +44,6 @@ public class PPUtil {
         f.delete();
     }
 
-    public static void joinNoCollision(ServerPlayerEntity player, MinecraftServer server) {
-        // No collisions for players logging in (so they don't get pushed by pigs)
-        Scoreboard teamScoreboard = server.getScoreboard();
-        Team noCollision;
-        try {
-            noCollision = teamScoreboard.addTeam("nocollision");
-            noCollision.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
-        } catch (Exception e) {}
-        noCollision = teamScoreboard.getTeam("nocollision");
-        teamScoreboard.addPlayerToTeam(player.getEntityName(), noCollision); // Add player to team
-    }
-
-    public static void leaveNoCollision(ServerPlayerEntity player, MinecraftServer server) {
-        Scoreboard teamScoreboard = server.getScoreboard();
-        Team noCollision = teamScoreboard.getTeam("nocollision");
-        teamScoreboard.removePlayerFromTeam(player.getEntityName(), noCollision); // Remove player from team
-    }
-
     public static void loadPPDataChunks(MinecraftServer server, String dimension, int posX, int PosZ) {
         try {
             CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
@@ -73,7 +51,7 @@ public class PPUtil {
             server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, server); // set to false
 
             cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + posX + " " + PosZ, server.getCommandSource());
-            Thread.sleep(250);
+            Thread.sleep(500);
             cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + PosZ, server.getCommandSource());
 
             server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, server); // reset to original
