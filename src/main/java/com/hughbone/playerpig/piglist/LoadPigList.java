@@ -16,29 +16,18 @@ public class LoadPigList {
             File[] listDir = dir.listFiles();
             if (listDir != null) {
                 for (File child : listDir) {
-                    String fineLine;
-                    double posX = 0;
-                    double posY = 0;
-                    double posZ = 0;
                     BufferedReader file = new BufferedReader(new FileReader(child));
-                    for (int i = 0; i < 4; i++) {
-                        fineLine = file.readLine();
-                        if (i == 0) {
-                            posX = Double.parseDouble(fineLine);
-                        } else if (i == 1) {
-                            posY = Double.parseDouble(fineLine);
-                        } else if (i == 2) {
-                            posZ = Double.parseDouble(fineLine);
-                        } else {
-                            List<String> temp = new ArrayList<String>();
-                            temp.add(""+ posX);
-                            temp.add(""+ posY);
-                            temp.add(""+ posZ);
-                            temp.add(fineLine);
-                            temp.add(child.getName());
-                            pigDataList.add(temp);
-                        }
-                    }
+
+                    List<String> temp = new ArrayList<String>();
+                    try {
+                        temp.add(file.readLine()); // X
+                        temp.add(file.readLine()); // Y
+                        temp.add(file.readLine()); // Z
+                        temp.add(file.readLine()); // Dimension
+                        temp.add(child.getName()); // Player UUID
+                        temp.add(file.readLine()); // Player Name
+                    } catch (Exception e) {}
+                    pigDataList.add(temp);
                 }
             }
         } catch (Exception e) {}

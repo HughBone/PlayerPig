@@ -31,7 +31,8 @@ public class SavePigList extends PigEntity{
                 file.write(piggy.getX() + "\n");
                 file.write(piggy.getPos().getY() + "\n");
                 file.write(piggy.getPos().getZ() + "\n");
-                file.write(piggy.world.getRegistryKey().getValue().toString());
+                file.write(piggy.world.getRegistryKey().getValue().toString() + "\n");
+                file.write(((PlayerPigExt) piggy).getPlayerName());
                 file.close();
             } catch (Exception e){}
         }
