@@ -29,7 +29,7 @@ public class PiglistCommand {
                     "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" +
                     playerName + "\"}]}}";
 
-            cm.getDispatcher().execute(command, ctx.getSource().getMinecraftServer().getCommandSource());
+            cm.getDispatcher().execute(command, ctx.getSource().getServer().getCommandSource());
 
         } catch (Exception e) {
             e.printStackTrace();

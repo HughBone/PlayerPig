@@ -53,7 +53,7 @@ public class PigremoveallCommand {
                             for (ServerWorld sw : worlds) {
                                 String dimension = sw.getRegistryKey().getValue().toString();
                                 if (unloadedPiggy.get(3).equals(dimension)) {
-                                    PPUtil.loadPPDataChunks(ctx.getSource().getMinecraftServer(), dimension, posX, posZ);
+                                    PPUtil.loadPPDataChunks(ctx.getSource().getServer(), dimension, posX, posZ);
                                     break;
                                 }
                             }
