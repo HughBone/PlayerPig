@@ -49,7 +49,7 @@ public class PlayerManagerMixin {
             }
         }
 
-        // Get dimension from file
+        // Else, get dimension from file
         List<List<String>> unloadedPigList = LoadPigList.getAllData();
 
         try {
@@ -69,8 +69,6 @@ public class PlayerManagerMixin {
         }catch (Exception e) {
             e.printStackTrace();
         }
-
-
 
         return server.getWorld(key);
     }
