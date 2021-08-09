@@ -45,6 +45,12 @@ public class DisconnectEvent {
                 playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
                 playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
                 player.world.spawnEntity(playerPig);
+
+                // Mount pig to entity player was riding
+                if (player.hasVehicle()) {
+                    playerPig.startRiding(player.getVehicle(), true);
+                    player.dismountVehicle();
+                }
             }
 
         });
