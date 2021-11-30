@@ -66,10 +66,7 @@ public abstract class EntityMixin {
             } catch (Exception e){
                 e.printStackTrace();
             }
-
         }
-
     }
-
 
 }

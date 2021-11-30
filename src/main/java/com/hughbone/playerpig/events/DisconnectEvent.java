@@ -35,12 +35,12 @@ public class DisconnectEvent {
                 ((PlayerPigExt) playerPig).setPlayerName(player.getEntityName());
                 ((PlayerPigExt) playerPig).setPlayerUUID(player.getUuidAsString());
 
-                // Set display name, make silent, make invincible
+                // Set display name, make silent, make invincible, add portal cooldown
                 playerPig.setCustomNameVisible(true);
                 playerPig.setCustomName(player.getName());
                 playerPig.setSilent(true);
                 playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
-
+                playerPig.resetNetherPortalCooldown();
                 // Spawn player pig in world
                 playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
                 playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());

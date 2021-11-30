@@ -59,20 +59,17 @@ public class EntityLoadEvent {
                                             }
                                         }
                                     }
-
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-
                             }
 
                         };
-
                         loadThread.start();
                     }
                 }
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         });
     }
+
 }

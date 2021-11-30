@@ -4,10 +4,12 @@ import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.commands.PigremoveallCommand;
 import com.hughbone.playerpig.events.DisconnectEvent;
 import com.hughbone.playerpig.piglist.SavePigList;
+import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -41,11 +43,12 @@ public abstract class MinecraftServerMixin {
                 String playerName = StringUtils.substringBetween(player.getName().toString(), "text='", "', ");
                 ((PlayerPigExt) playerPig).setPlayerName(playerName);
                 ((PlayerPigExt) playerPig).setPlayerUUID(player.getUuidAsString());
-                // Set display name, make silent, make invincible
+                // Set display name, make silent, make invincible, add portal cooldown
                 playerPig.setCustomNameVisible(true);
                 playerPig.setCustomName(player.getName());
                 playerPig.setSilent(true);
                 playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
+                playerPig.resetNetherPortalCooldown();
                 // Spawn pig in world
                 playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
                 playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
