@@ -7,7 +7,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.server.command.*;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.LiteralText;
 
 import java.util.List;
@@ -16,7 +17,6 @@ public class PiglistCommand {
 
     private static void sendMessage(CommandContext<ServerCommandSource> ctx, int x, int y, int z, String world, String playerName) {
         try {
-
             CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
 
             String command = "tellraw " + ctx.getSource().getPlayer().getEntityName() +
@@ -30,11 +30,9 @@ public class PiglistCommand {
                     playerName + "\"}]}}";
 
             cm.getDispatcher().execute(command, ctx.getSource().getServer().getCommandSource());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public static void init() {
@@ -53,7 +51,6 @@ public class PiglistCommand {
                                     continue outer;
                                 }
                             }
-
                             int posX = 0;
                             int posY = 0;
                             int posZ = 0;
@@ -68,7 +65,6 @@ public class PiglistCommand {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
                             sendMessage(ctx, posX, posY, posZ, dimension, playerName);
                             playerPigsFound = true;
                         }
@@ -77,7 +73,6 @@ public class PiglistCommand {
                             sendMessage(ctx, pigInList.getBlockX(), pigInList.getBlockY(), pigInList.getBlockZ(), pigInList.world.getRegistryKey().getValue().toString(), ((PlayerPigExt) pigInList).getPlayerName());
                             playerPigsFound = true;
                         }
-
                         // Success messages
                         if (!playerPigsFound) {
                             try {
@@ -97,4 +92,5 @@ public class PiglistCommand {
             return 1;
         })));
     }
+
 }

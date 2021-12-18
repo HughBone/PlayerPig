@@ -22,16 +22,13 @@ import java.util.List;
 public abstract class EntityMixin {
 
     @Shadow @Final private EntityType<?> type;
-
     @Shadow public abstract String getUuidAsString();
-
     @Shadow @Nullable public abstract MinecraftServer getServer();
 
     @ModifyArgs(method = "readNbt", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPos(DDD)V"))
     private void test(Args args) {
-
-        // Get Pos from piglist
         if (this.type.equals(EntityType.PLAYER)) {
+            // Get Position from piglist
             for (PigEntity pigInList : PPUtil.getPigList()) {
                 try {
                     if (((PlayerPigExt) pigInList).getPlayerUUID().equals(this.getUuidAsString())) {
@@ -44,10 +41,8 @@ public abstract class EntityMixin {
                     e.printStackTrace();
                 }
             }
-
-            // Get Pos from file
+            // Get Position from file
             List<List<String>> unloadedPigList = LoadPigList.getAllData();
-
             try {
                 for (List<String> unloadedPiggy : unloadedPigList) {
                     if (unloadedPiggy.get(4).equals(this.getUuidAsString())) {

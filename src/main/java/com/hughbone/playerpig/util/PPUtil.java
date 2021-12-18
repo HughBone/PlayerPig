@@ -1,22 +1,26 @@
 package com.hughbone.playerpig.util;
 
+import com.hughbone.playerpig.PlayerPigExt;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameRules;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 public class PPUtil {
 
-    private static List<PigEntity> pigList = new ArrayList<PigEntity>();
+    private static LinkedList<PigEntity> pigList = new LinkedList<>();
 
-    public static List<PigEntity> getPigList() {
+    public static LinkedList<PigEntity> getPigList() {
         return pigList;
     }
 
@@ -56,6 +60,31 @@ public class PPUtil {
 
             server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, server); // reset to original
         } catch (InterruptedException | CommandSyntaxException e) {}
+    }
+
+    public static void spawnPlayerPig(ServerPlayerEntity player) {
+        PigEntity playerPig = EntityType.PIG.create(player.world);
+        assert playerPig != null;
+        ((PlayerPigExt) playerPig).setPlayerPig(true);
+        // Store player name, player uuid as tags
+        ((PlayerPigExt) playerPig).setPlayerName(player.getEntityName());
+        ((PlayerPigExt) playerPig).setPlayerUUID(player.getUuidAsString());
+        // Set display name, make silent, make invincible, add portal cooldown
+        playerPig.setCustomNameVisible(true);
+        playerPig.setCustomName(player.getName());
+        playerPig.setSilent(true);
+        playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
+        playerPig.resetNetherPortalCooldown();
+        playerPig.saddle(null);
+        // Spawn player pig in world
+        playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
+        playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
+        player.world.spawnEntity(playerPig);
+        // Mount pig to entity player was riding
+        if (player.hasVehicle()) {
+            playerPig.startRiding(player.getVehicle(), true);
+            player.dismountVehicle();
+        }
     }
 
 }

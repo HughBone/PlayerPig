@@ -36,7 +36,6 @@ public class PlayerManagerMixin {
 
     @Redirect(method = "onPlayerConnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getWorld(Lnet/minecraft/util/registry/RegistryKey;)Lnet/minecraft/server/world/ServerWorld;"))
     private ServerWorld injected(MinecraftServer minecraftServer, RegistryKey<World> key) {
-
         // Get dimension from piglist
         for (PigEntity pigInList : PPUtil.getPigList()) {
             try {
@@ -51,7 +50,6 @@ public class PlayerManagerMixin {
 
         // Else, get dimension from file
         List<List<String>> unloadedPigList = LoadPigList.getAllData();
-
         try {
             for (List<String> unloadedPiggy : unloadedPigList) {
                 if (unloadedPiggy.get(4).equals(player.getUuidAsString())) {
@@ -69,9 +67,7 @@ public class PlayerManagerMixin {
         }catch (Exception e) {
             e.printStackTrace();
         }
-
         return server.getWorld(key);
     }
-
 
 }

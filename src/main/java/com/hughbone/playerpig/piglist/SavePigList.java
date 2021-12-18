@@ -1,6 +1,9 @@
 package com.hughbone.playerpig.piglist;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -18,7 +21,6 @@ public class SavePigList extends PigEntity{
     }
 
     public static void save() throws IOException {
-
         try {
             Files.createDirectory(Paths.get(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data"));
         } catch(Exception e){}
@@ -37,4 +39,5 @@ public class SavePigList extends PigEntity{
             } catch (Exception e){}
         }
     }
+
 }

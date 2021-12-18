@@ -17,7 +17,7 @@ public class PigfixCommand {
     public static void init() {
         // Kills one player pig within 4 blocks of the player
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(CommandManager.literal("pigfix")
-                //.requires(source -> source.hasPermissionLevel(4))
+                .requires(source -> source.hasPermissionLevel(4))
                 .executes(ctx -> {
                     PlayerEntity player = ctx.getSource().getPlayer();
                     List<Entity> eList = player.world.getOtherEntities(player, player.getBoundingBox().expand(4, 4, 4));
@@ -25,7 +25,7 @@ public class PigfixCommand {
                         if (entity.getType().equals(EntityType.PIG)) {
                             PigEntity nearbyPig = (PigEntity) entity;
                             if (((PlayerPigExt) nearbyPig).isPlayerPig()) {
-                                nearbyPig.remove(Entity.RemovalReason.KILLED);
+                                nearbyPig.remove(Entity.RemovalReason.DISCARDED);
                                 PPUtil.removeFile(((PlayerPigExt) nearbyPig).getPlayerUUID());
                                 PPUtil.getPigList().remove(nearbyPig);
                                 ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] Piggy removed successfully."), false);

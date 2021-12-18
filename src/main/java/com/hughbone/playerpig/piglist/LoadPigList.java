@@ -2,7 +2,9 @@ package com.hughbone.playerpig.piglist;
 
 import com.hughbone.playerpig.util.PPUtil;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,7 @@ public class LoadPigList {
 
     public static List<List<String>> getAllData() {
         PPUtil.createDataFolder();
-        List<List<String>> pigDataList = new ArrayList<List<String>>();
+        List<List<String>> pigDataList = new ArrayList<>();
         try {
             File dir = new File(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data");
             File[] listDir = dir.listFiles();

@@ -40,6 +40,7 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
             nbt.putString("playerUUID", matchingPlayerUUID);
         }
     }
+
     @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
     public void readCustomDataFromTag (NbtCompound nbt, CallbackInfo ci) {
         playerPig = nbt.getBoolean("playerPig");
@@ -50,13 +51,12 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
     }
 
     public boolean isPlayerPig() {
-        if (playerPig) {
+        if (playerPig)
             return true;
-        }
-        else {
+        else
             return false;
-        }
     }
+
     public void setPlayerPig(boolean setPP) {
         if (setPP)
             playerPig = true;
