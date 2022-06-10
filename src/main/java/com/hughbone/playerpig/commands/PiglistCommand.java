@@ -4,12 +4,13 @@ import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.piglist.LoadPigList;
 import com.hughbone.playerpig.util.PPUtil;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.registry.DynamicRegistryManager;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class PiglistCommand {
 
     private static void sendMessage(CommandContext<ServerCommandSource> ctx, int x, int y, int z, String world, String playerName) {
         try {
-            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
+            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, new CommandRegistryAccess(DynamicRegistryManager.createAndLoad()));
 
             String command = "tellraw " + ctx.getSource().getPlayer().getEntityName() +
                     " {\"text\":\"" +
@@ -37,7 +38,7 @@ public class PiglistCommand {
 
     public static void init() {
         // List all player pigs in memory
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(CommandManager.literal("piglist").executes(ctx -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, okay) -> dispatcher.register(CommandManager.literal("piglist").executes(ctx -> {
 
             if (ctx.getSource().getPlayer().hasPermissionLevel(4) || ctx.getSource().getPlayer().getEntityName().equals("HughBone")) { // HughBone is here for debugging
                 Thread thread = new Thread() {
@@ -75,11 +76,7 @@ public class PiglistCommand {
                         }
                         // Success messages
                         if (!playerPigsFound) {
-                            try {
-                                ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] No player pigs found."), false);
-                            } catch (CommandSyntaxException e) {
-                                e.printStackTrace();
-                            }
+                            ctx.getSource().getPlayer().sendMessage(Text.literal("[PlayerPig] No player pigs found."), false);
                         }
 
                     }
@@ -87,7 +84,7 @@ public class PiglistCommand {
 
                 thread.start();
             } else {
-                ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] You need OP to use this command."), false);
+                ctx.getSource().getPlayer().sendMessage(Text.literal("[PlayerPig] You need OP to use this command."), false);
             }
             return 1;
         })));

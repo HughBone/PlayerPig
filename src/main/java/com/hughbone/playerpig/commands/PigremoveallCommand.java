@@ -4,13 +4,15 @@ import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.piglist.LoadPigList;
 import com.hughbone.playerpig.util.PPUtil;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.GameRules;
 
 import java.util.List;
@@ -22,24 +24,18 @@ public class PigremoveallCommand {
     public static void init() {
 
         // Kills one player pig within 4 blocks of the player
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(CommandManager.literal("pigremoveall").requires(source -> source.hasPermissionLevel(4)).executes(ctx -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, okay) -> dispatcher.register(CommandManager.literal("pigremoveall").requires(source -> source.hasPermissionLevel(4)).executes(ctx -> {
             Thread thread = new Thread() {
                 public void run() {
                     allowPPSpawn = false; // stop player pigs from spawning
 
                     if (ctx.getSource().hasPermissionLevel(4)) {
-                        CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
+                        CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, new CommandRegistryAccess(DynamicRegistryManager.createAndLoad()));
                         ServerPlayerEntity player = null;
-                        try {
-                            player = ctx.getSource().getPlayer();
-                        } catch (CommandSyntaxException e) {}
+                        player = ctx.getSource().getPlayer();
                         Iterable<ServerWorld> worlds = player.getServer().getWorlds();
 
-                        try {
-                            ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] Removing all PlayerPigs (This may take a while...)"), false);
-                        } catch (CommandSyntaxException e) {
-                            e.printStackTrace();
-                        }
+                        ctx.getSource().getPlayer().sendMessage(Text.literal("[PlayerPig] Removing all PlayerPigs (This may take a while...)"), false);
 
                         // Load all from data folder
                         List<List<String>> unloadedPigList = LoadPigList.getAllData();
@@ -78,7 +74,7 @@ public class PigremoveallCommand {
                                             piggy2.remove(Entity.RemovalReason.KILLED);
                                         }
                                         Thread.sleep(500);
-                                        player.sendMessage(new LiteralText("PlayerPig " + ((PlayerPigExt) piggy).getPlayerName() + " was removed."), false);
+                                        player.sendMessage(Text.literal("PlayerPig " + ((PlayerPigExt) piggy).getPlayerName() + " was removed."), false);
                                         cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + (int)piggy.getX() + " " + (int)piggy.getZ(), player.getServer().getCommandSource());
 
                                         player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer()); // reset to original
@@ -89,11 +85,7 @@ public class PigremoveallCommand {
                         PPUtil.getPigList().clear(); // Clear all elements from the list
                         PPUtil.getPigList().clear(); // Clear all elements from the list
                         PPUtil.deleteAllFiles(); // delete straggler files
-                        try {
-                            ctx.getSource().getPlayer().sendMessage(new LiteralText("[PlayerPig] All PlayerPigs removed. (PlayerPigs will not spawn until the server reloads.)"), false);
-                        } catch (CommandSyntaxException e) {
-                            e.printStackTrace();
-                        }
+                        ctx.getSource().getPlayer().sendMessage(Text.literal("[PlayerPig] All PlayerPigs removed. (PlayerPigs will not spawn until the server reloads.)"), false);
                     }
                 }
             };

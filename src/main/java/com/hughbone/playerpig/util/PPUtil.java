@@ -2,6 +2,7 @@ package com.hughbone.playerpig.util;
 
 import com.hughbone.playerpig.PlayerPigExt;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -9,6 +10,7 @@ import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.GameRules;
 
 import java.io.File;
@@ -50,7 +52,7 @@ public class PPUtil {
 
     public static void loadPPDataChunks(MinecraftServer server, String dimension, int posX, int PosZ) {
         try {
-            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL);
+            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, new CommandRegistryAccess(DynamicRegistryManager.createAndLoad()));
             boolean sendCommandFB = server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
             server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, server); // set to false
 
