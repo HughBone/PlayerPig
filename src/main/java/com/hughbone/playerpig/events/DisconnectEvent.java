@@ -26,6 +26,7 @@ public class DisconnectEvent {
                     }
                 }
                 PPUtil.spawnPlayerPig(player);
+                ((PlayerExt) player).setLinkedPassenger(null);
             }
         });
     }

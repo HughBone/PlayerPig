@@ -38,10 +38,20 @@ public class JoinEvent {
             for (PigEntity piggy : PPUtil.getPigList()) {
                 if (((PlayerPigExt) piggy).getPlayerUUID().equals(playerUUID)) {
                     if (((PlayerPigExt) piggy).getPlayerUUID().equals(player.getUuidAsString())) {
+                        // have pigs ride player if pig stack
+                        if (piggy.hasPassengers()) {
+                            Entity passenger = piggy.getFirstPassenger();
+                            passenger.stopRiding();
+                            if (passenger instanceof PigEntity) {
+                                ((PlayerExt) player).setLinkedPassenger(passenger);
+                            }
+                        }
+
                         // Mount player to what playerpig is riding
                         if (piggy.hasVehicle()) {
                             player.startRiding(piggy.getVehicle(),true);
                         }
+
                         // Drop lead if pig was leaded
                         if (piggy.isLeashed()) {
                             ItemEntity item = EntityType.ITEM.create(player.world);
@@ -56,6 +66,7 @@ public class JoinEvent {
                         }
                         piggy.remove(Entity.RemovalReason.DISCARDED); // Kill pig
                         PPUtil.getPigList().remove(piggy); // Remove from PigList
+                        piggy = null;
                         return;
                     }
                 }

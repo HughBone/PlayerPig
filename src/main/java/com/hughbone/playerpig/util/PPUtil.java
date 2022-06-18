@@ -1,8 +1,10 @@
 package com.hughbone.playerpig.util;
 
+import com.hughbone.playerpig.PlayerExt;
 import com.hughbone.playerpig.PlayerPigExt;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -78,15 +80,22 @@ public class PPUtil {
         playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
         playerPig.resetNetherPortalCooldown();
         playerPig.saddle(null);
-        // Spawn player pig in world
-        playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
-        playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
-        player.world.spawnEntity(playerPig);
+
+        // mount passengers to pig
+        if (((PlayerExt) player).getLinkedPassenger() != null) {
+            Entity passenger = ((PlayerExt) player).getLinkedPassenger();
+            passenger.startRiding(playerPig, true);
+        }
         // Mount pig to entity player was riding
         if (player.hasVehicle()) {
             playerPig.startRiding(player.getVehicle(), true);
             player.dismountVehicle();
         }
+
+        // Spawn player pig in world
+        playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
+        playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
+        player.world.spawnEntity(playerPig);
     }
 
 }
