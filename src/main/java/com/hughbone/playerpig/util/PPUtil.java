@@ -9,10 +9,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.GameRules;
 
 import java.io.File;
@@ -71,14 +71,14 @@ public class PPUtil {
         assert playerPig != null;
         ((PlayerPigExt) playerPig).setPlayerPig(true);
         // Store player name, player uuid as tags
-        ((PlayerPigExt) playerPig).setPlayerName(player.getEntityName());
+        ((PlayerPigExt) playerPig).setPlayerName(player.getNameForScoreboard());
         ((PlayerPigExt) playerPig).setPlayerUUID(player.getUuidAsString());
         // Set display name, make silent, make invincible, add portal cooldown
         playerPig.setCustomNameVisible(true);
         playerPig.setCustomName(player.getName());
         playerPig.setSilent(true);
         playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
-        playerPig.resetNetherPortalCooldown();
+        playerPig.resetPortalCooldown();
         playerPig.saddle(null);
 
         // mount passengers to pig

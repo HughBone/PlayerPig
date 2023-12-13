@@ -7,11 +7,10 @@ import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.util.registry.DynamicRegistryManager;
-
 import java.util.List;
 
 public class PiglistCommand {
@@ -20,7 +19,7 @@ public class PiglistCommand {
         try {
             CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, new CommandRegistryAccess(DynamicRegistryManager.createAndLoad()));
 
-            String command = "tellraw " + ctx.getSource().getPlayer().getEntityName() +
+            String command = "tellraw " + ctx.getSource().getPlayer().getNameForScoreboard() +
                     " {\"text\":\"" +
                     "(" + playerName + ": " + x + ", " + y + ", " + z + ", " + world + ")" +
                     "\",\"color\":\"blue\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "/execute in " +
@@ -40,7 +39,7 @@ public class PiglistCommand {
         // List all player pigs in memory
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, okay) -> dispatcher.register(CommandManager.literal("piglist").executes(ctx -> {
 
-            if (ctx.getSource().getPlayer().hasPermissionLevel(4) || ctx.getSource().getPlayer().getEntityName().equals("HughBone")) { // HughBone is here for debugging
+            if (ctx.getSource().getPlayer().hasPermissionLevel(4) || ctx.getSource().getPlayer().getNameForScoreboard().equals("HughBone")) { // HughBone is here for debugging
                 Thread thread = new Thread() {
                     public void run() {
                         boolean playerPigsFound = false;
