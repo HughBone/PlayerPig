@@ -1,6 +1,5 @@
 package com.hughbone.playerpig.mixin;
 
-import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.piglist.LoadPigList;
 import com.hughbone.playerpig.util.PPUtil;
 import net.minecraft.entity.Entity;
@@ -19,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import java.util.List;
 
 @Mixin(Entity.class)
+//@Environment(EnvType.SERVER)
 public abstract class EntityMixin {
 
     @Shadow @Final private EntityType<?> type;
@@ -26,21 +26,17 @@ public abstract class EntityMixin {
     @Shadow @Nullable public abstract MinecraftServer getServer();
 
     @ModifyArgs(method = "readNbt", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPos(DDD)V"))
-    private void test(Args args) {
+    private void readNbt(Args args) {
         if (this.type.equals(EntityType.PLAYER)) {
             // Get Position from piglist
-            for (PigEntity pigInList : PPUtil.getPigList()) {
-                try {
-                    if (((PlayerPigExt) pigInList).getPlayerUUID().equals(this.getUuidAsString())) {
-                        args.set(0, pigInList.getX());
-                        args.set(1, pigInList.getY());
-                        args.set(2, pigInList.getZ());
-                        return;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            PigEntity matchingPig = PPUtil.pigList.get(this.getUuidAsString());
+            if (matchingPig != null) {
+                args.set(0, matchingPig.getX());
+                args.set(1, matchingPig.getY());
+                args.set(2, matchingPig.getZ());
+                return;
             }
+
             // Get Position from file
             List<List<String>> unloadedPigList = LoadPigList.getAllData();
             try {
@@ -63,5 +59,4 @@ public abstract class EntityMixin {
             }
         }
     }
-
 }

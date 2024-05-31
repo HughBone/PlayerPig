@@ -5,8 +5,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
@@ -20,9 +19,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
+import java.util.UUID;
+
 // Adds playerPig, playerName, and playerUUID tags
 @Mixin(PigEntity.class)
-public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigExt  {
+public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigExt {
 
     private boolean playerPig = false;
     private String matchingPlayerName = "";
@@ -51,10 +53,7 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
     }
 
     public boolean isPlayerPig() {
-        if (playerPig)
-            return true;
-        else
-            return false;
+        return playerPig;
     }
 
     public void setPlayerPig(boolean setPP) {
@@ -92,12 +91,12 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
         if (playerPig) {
             if (String.valueOf(lastDamageTaken).equals("3.4028235E38")) {
                 this.remove(RemovalReason.DISCARDED);
-                PPUtil.getPigList().remove((PigEntity)(Object)this);
+                PPUtil.pigList.remove(matchingPlayerUUID);
                 PPUtil.removeFile(matchingPlayerUUID);
             }
             else {
                 this.setHealth(20F);
-                this.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
+//                this.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
             }
         }
     }
@@ -107,7 +106,7 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
     public void stopPPVoidDamage(DamageSource source, CallbackInfoReturnable<SoundEvent> cir) {
         try {
             if (playerPig) {
-                if (source.isOutOfWorld()) {
+                if (source.getTypeRegistryEntry().equals(DamageTypes.OUT_OF_WORLD)) {
                     this.updatePosition(0, 100, 0);
                     this.updateTrackedPosition(0, 100, 0);
                     this.setHealth(20F);

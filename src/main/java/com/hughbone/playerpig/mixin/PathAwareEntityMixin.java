@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // Stop leads from breaking (50 blocks) when player pig is leashed
 // Useful when flying w/ elytra
 @Mixin(PathAwareEntity.class)
+//@Environment(EnvType.SERVER)
 public abstract class PathAwareEntityMixin extends MobEntity implements PlayerPigExt {
 
     protected PathAwareEntityMixin(EntityType<? extends MobEntity> entityType, World world) {
@@ -29,7 +30,7 @@ public abstract class PathAwareEntityMixin extends MobEntity implements PlayerPi
                     // I have no idea what's going on here I just copy pasted the code
                     super.updateLeash();
                     Entity entity = this.getHoldingEntity();
-                    if (entity != null && entity.world == this.world) {
+                    if (entity != null && entity.getWorld() == this.getWorld()) {
                         this.setPositionTarget(entity.getBlockPos(), 5);
                         float f = this.distanceTo(entity);
                         if (f > 50.0F) { // OKAY 50 BLOCK LEAD BREAKAGE

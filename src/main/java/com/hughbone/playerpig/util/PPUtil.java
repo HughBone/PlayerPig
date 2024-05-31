@@ -1,32 +1,28 @@
 package com.hughbone.playerpig.util;
 
-import com.hughbone.playerpig.PlayerExt;
 import com.hughbone.playerpig.PlayerPigExt;
+import com.hughbone.playerpig.commands.PigremoveallCommand;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.ServerWorldAccess;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 public class PPUtil {
-
-    private static LinkedList<PigEntity> pigList = new LinkedList<>();
-
-    public static LinkedList<PigEntity> getPigList() {
-        return pigList;
-    }
+    public static boolean serverStopping = false;
+    public static HashMap<String, PigEntity> pigList = new HashMap<>();
 
     public static void createDataFolder() {
         try {
@@ -54,7 +50,7 @@ public class PPUtil {
 
     public static void loadPPDataChunks(MinecraftServer server, String dimension, int posX, int PosZ) {
         try {
-            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, new CommandRegistryAccess(DynamicRegistryManager.createAndLoad()));
+            CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup()));
             boolean sendCommandFB = server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
             server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, server); // set to false
 
@@ -67,35 +63,40 @@ public class PPUtil {
     }
 
     public static void spawnPlayerPig(ServerPlayerEntity player) {
-        PigEntity playerPig = EntityType.PIG.create(player.world);
-        assert playerPig != null;
-        ((PlayerPigExt) playerPig).setPlayerPig(true);
-        // Store player name, player uuid as tags
-        ((PlayerPigExt) playerPig).setPlayerName(player.getEntityName());
-        ((PlayerPigExt) playerPig).setPlayerUUID(player.getUuidAsString());
+        if (PPUtil.pigList.get(player.getUuidAsString()) != null
+            || player.isSpectator() || !PigremoveallCommand.allowPPSpawn
+        ) {
+            return;
+        }
+
+        ServerWorldAccess world = (ServerWorldAccess) player.getWorld();
+        PigEntity playerPig = EntityType.PIG.create(world.toServerWorld());
+        if (playerPig == null) {
+            return;
+        }
+
+        PlayerPigExt playerPig1 = (PlayerPigExt) playerPig;
+        playerPig1.setPlayerPig(true);
+        playerPig1.setPlayerName(player.getName().toString());
+        playerPig1.setPlayerUUID(player.getUuid().toString());
+
+        BlockPos playerPos = player.getBlockPos();
+        playerPig.refreshPositionAndAngles(playerPos, player.getYaw(), player.getPitch());
+        world.spawnEntityAndPassengers(playerPig);
+
         // Set display name, make silent, make invincible, add portal cooldown
         playerPig.setCustomNameVisible(true);
         playerPig.setCustomName(player.getName());
         playerPig.setSilent(true);
         playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
-        playerPig.resetNetherPortalCooldown();
+        playerPig.resetPortalCooldown();
         playerPig.saddle(null);
 
-        // mount passengers to pig
-        if (((PlayerExt) player).getLinkedPassenger() != null) {
-            Entity passenger = ((PlayerExt) player).getLinkedPassenger();
-            passenger.startRiding(playerPig, true);
-        }
         // Mount pig to entity player was riding
         if (player.hasVehicle()) {
             playerPig.startRiding(player.getVehicle(), true);
             player.dismountVehicle();
         }
-
-        // Spawn player pig in world
-        playerPig.updatePosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
-        playerPig.updateTrackedPosition(player.getPos().getX(), player.getPos().getY(), player.getPos().getZ());
-        player.world.spawnEntity(playerPig);
     }
 
 }

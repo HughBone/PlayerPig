@@ -1,6 +1,8 @@
 package com.hughbone.playerpig.piglist;
 
 import com.hughbone.playerpig.util.PPUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,6 +10,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+//@Environment(EnvType.SERVER)
 public class LoadPigList {
 
     public static List<List<String>> getAllData() {

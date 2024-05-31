@@ -1,7 +1,5 @@
 package com.hughbone.playerpig.mixin;
 
-import com.hughbone.playerpig.commands.PigremoveallCommand;
-import com.hughbone.playerpig.events.DisconnectEvent;
 import com.hughbone.playerpig.piglist.SavePigList;
 import com.hughbone.playerpig.util.PPUtil;
 import net.minecraft.server.MinecraftServer;
@@ -17,13 +15,14 @@ import java.io.IOException;
 
 // Always make sure pigs spawn before server closes
 @Mixin(MinecraftServer.class)
+//@Environment(EnvType.SERVER)
 public abstract class MinecraftServerMixin {
     @Shadow private PlayerManager playerManager;
 
     @Inject(method = "stop", at = @At("HEAD"))
     private void stopMixin(boolean bl, CallbackInfo ci) throws InterruptedException {
-        if (!DisconnectEvent.serverStopping && PigremoveallCommand.allowPPSpawn) { // Makes sure this only runs one time
-            DisconnectEvent.serverStopping = true; // Prevents DisconnectEvent from spawning pigs (DisconnectEvent is fucky when server stops)
+        if (!PPUtil.serverStopping) { // Makes sure this only runs one time
+            PPUtil.serverStopping = true; // Prevents DisconnectEvent from spawning pigs (DisconnectEvent is fucky when server stops)
             // Spawn a pig for all players in world
             for (ServerPlayerEntity player : playerManager.getPlayerList()) {
                 PPUtil.spawnPlayerPig(player);

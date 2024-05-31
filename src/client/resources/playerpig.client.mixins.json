@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "com.hughbone.playerpig.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"PigEntityRendererMixin",
+		"QuadrupedEntityModelMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

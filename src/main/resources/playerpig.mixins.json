@@ -11,8 +11,6 @@
     "ServerPlayerEntityMixin",
     "PlayerPigMixin"
   ],
-  "client": [
-  ],
   "injectors": {
     "defaultRequire": 1
   }
