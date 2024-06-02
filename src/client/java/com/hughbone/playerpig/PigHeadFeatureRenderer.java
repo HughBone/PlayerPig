@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.2.2 (FabricMC 7c48b8c4).
- */
 package com.hughbone.playerpig;
 
 import java.util.HashMap;
@@ -20,12 +17,10 @@ import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LimbAnimator;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.*;
+import net.minecraft.nbt.*;
 
 @Environment(value=EnvType.CLIENT)
 public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityModel<T>>
@@ -34,8 +29,8 @@ public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityMode
 	private final Map<SkullBlock.SkullType, SkullBlockEntityModel> headModels;
 	private final ModelPart head;
 
-	private final ProfileComponent defaultProfileComponent = new ItemStack(Items.PLAYER_HEAD, 1).get(DataComponentTypes.PROFILE);
-	private final Map<String, ProfileComponent> nameToPC = new HashMap<>();
+//	private final ProfileComponent defaultProfileComponent = new ItemStack(Items.PLAYER_HEAD, 1).get(DataComponentTypes.PROFILE);
+	private final Map<String, NbtCompound> nameToPC = new HashMap<>();
 	private final SkullBlock.SkullType skullType = SkullBlock.SkullType.TYPES.get("player");
 	private final SkullBlockEntityModel skullBlockEntityModel;
 
@@ -48,11 +43,10 @@ public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityMode
     }
 
 	public void addNameToMap(String name) {
-		SkullBlockEntity.fetchProfileByName(name).thenAcceptAsync((profile) -> {
-			if (profile.isPresent()) {
-				nameToPC.put(name, new ProfileComponent((GameProfile) profile.get()));
-			}
-		}, SkullBlockEntity.EXECUTOR);
+		NbtCompound nbtCompound = new NbtCompound();
+		nbtCompound.putString("SkullOwner", name);
+		SkullBlockEntity.getProfile(nbtCompound);
+		nameToPC.put(name, nbtCompound);
 	}
 
 	@Override
@@ -68,10 +62,7 @@ public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityMode
 			return;
 		}
 
-		ProfileComponent profileComponent = nameToPC.get(name);
-		if (profileComponent == null) {
-			profileComponent = defaultProfileComponent;
-		}
+		GameProfile gameProfile = NbtHelper.toGameProfile(nameToPC.get(name).getCompound("SkullOwner"));
 
 		matrixStack.push();
 		matrixStack.scale(head.xScale, head.yScale, head.zScale);
@@ -80,7 +71,7 @@ public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityMode
 		LimbAnimator limbAnimator;
 		matrixStack.scale(1.15f, -1.15f, -1.15f);
 		matrixStack.translate(-0.5, -0.25, -0.26);
-		RenderLayer renderLayer = SkullBlockEntityRenderer.getRenderLayer(skullType, profileComponent);
+		RenderLayer renderLayer = SkullBlockEntityRenderer.getRenderLayer(skullType, gameProfile);
 
 		Entity entity = livingEntity.getVehicle();
 		if (entity instanceof LivingEntity) {
