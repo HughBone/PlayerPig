@@ -14,20 +14,22 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import com.hughbone.playerpig.PlayerPigExt;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Optional;
-import java.util.UUID;
 
 // Adds playerPig, playerName, and playerUUID tags
 @Mixin(PigEntity.class)
 public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigExt {
 
+    @Unique
     private boolean playerPig = false;
+    @Unique
     private String matchingPlayerName = "";
+    @Unique
     private String matchingPlayerUUID = "";
 
     protected PlayerPigMixin(EntityType<? extends LivingEntity> entityType, World world) {
@@ -106,20 +108,15 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
     public void stopPPVoidDamage(DamageSource source, CallbackInfoReturnable<SoundEvent> cir) {
         try {
             if (playerPig) {
-                if (source.getTypeRegistryEntry().equals(DamageTypes.OUT_OF_WORLD)) {
-                    this.updatePosition(0, 100, 0);
-                    this.updateTrackedPosition(0, 100, 0);
+                if (source.getTypeRegistryEntry().matchesKey(DamageTypes.OUT_OF_WORLD)) {
+                    this.teleport(0, 100, 0);
                     this.setHealth(20F);
                     this.setVelocity(Vec3d.ZERO);
-
-                    while (this.isInsideWall()) {
-                        double newY = this.getY() + 10;
-                        this.updatePosition(this.getX(), newY, this.getZ());
-                        this.updateTrackedPosition(this.getX(), newY, this.getZ());
-                    }
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.out.println("[PlayerPig] Error preventing void damage / TP");
+        }
     }
 
 }

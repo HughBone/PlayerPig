@@ -54,15 +54,4 @@ public class JoinEvent {
         });
     }
 
-    public static class JoinThread implements Runnable {
-        private ServerPlayerEntity player;
-
-        public JoinThread(ServerPlayerEntity player) {
-            this.player = player;
-        }
-
-        public void run() {
-
-        }
-    }
 }

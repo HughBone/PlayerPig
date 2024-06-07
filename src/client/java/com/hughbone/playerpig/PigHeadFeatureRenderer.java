@@ -1,13 +1,12 @@
 package com.hughbone.playerpig;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import com.hughbone.playerpig.mixin.client.QuadrupedAccessor;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.SkullBlock;
-import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -18,18 +17,18 @@ import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LimbAnimator;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 
 @Environment(value=EnvType.CLIENT)
-public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityModel<T>>
-		extends FeatureRenderer<T, M> {
+public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityModel<T>> extends FeatureRenderer<T, M> {
 
 	private final Map<SkullBlock.SkullType, SkullBlockEntityModel> headModels;
 	private final ModelPart head;
 
-//	private final ProfileComponent defaultProfileComponent = new ItemStack(Items.PLAYER_HEAD, 1).get(DataComponentTypes.PROFILE);
 	private final Map<String, NbtCompound> nameToPC = new HashMap<>();
 	private final SkullBlock.SkullType skullType = SkullBlock.SkullType.TYPES.get("player");
 	private final SkullBlockEntityModel skullBlockEntityModel;
@@ -38,31 +37,25 @@ public class PigHeadFeatureRenderer<T extends LivingEntity, M extends EntityMode
 		super(context);
 		this.headModels = SkullBlockEntityRenderer.getModels(loader);
 		QuadrupedEntityModel quadModel = (QuadrupedEntityModel) this.getContextModel();
-		this.head = ((QuadrupedHelper) quadModel).getHead();
+		this.head = ((QuadrupedAccessor) quadModel).getHead();
 		this.skullBlockEntityModel = headModels.get(this.skullType);
     }
 
-	public void addNameToMap(String name) {
-		NbtCompound nbtCompound = new NbtCompound();
-		nbtCompound.putString("SkullOwner", name);
-		SkullBlockEntity.getProfile(nbtCompound);
-		nameToPC.put(name, nbtCompound);
-	}
 
 	@Override
 	public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l) {
-		if (!livingEntity.hasCustomName()) {
+
+		ItemStack skull = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
+		if (!livingEntity.hasCustomName()
+			|| skull == null
+			|| skull.isEmpty()
+			|| skull.getNbt() == null
+			|| !skull.getNbt().contains("SkullOwner", NbtElement.COMPOUND_TYPE)
+		) {
 			return;
 		}
 
-		String name = livingEntity.getCustomName().getString();
-		if (!nameToPC.containsKey(name)) {
-			nameToPC.put(name, null);
-			addNameToMap(name);
-			return;
-		}
-
-		GameProfile gameProfile = NbtHelper.toGameProfile(nameToPC.get(name).getCompound("SkullOwner"));
+		GameProfile gameProfile = NbtHelper.toGameProfile(skull.getNbt().getCompound("SkullOwner"));
 
 		matrixStack.push();
 		matrixStack.scale(head.xScale, head.yScale, head.zScale);
