@@ -4,6 +4,7 @@ import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.piglist.LoadPigList;
 import com.hughbone.playerpig.util.PPUtil;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.registry.BuiltinRegistries;
@@ -19,7 +20,7 @@ public class PiglistCommand {
         try {
             CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup()));
 
-            String command = "tellraw " + ctx.getSource().getPlayer().getName() +
+            String command = "tellraw " + ctx.getSource().getPlayer().getNameForScoreboard() +
                     " {\"text\":\"" +
                     "(" + playerName + ": " + x + ", " + y + ", " + z + ", " + world + ")" +
                     "\",\"color\":\"blue\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"" + "/execute in " +
@@ -29,9 +30,11 @@ public class PiglistCommand {
                     "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" +
                     playerName + "\"}]}}";
 
+            System.out.println(command);
+
             cm.getDispatcher().execute(command, ctx.getSource().getServer().getCommandSource());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (CommandSyntaxException e) {
+//            e.printStackTrace();
         }
     }
 
@@ -63,9 +66,7 @@ public class PiglistCommand {
                                 posZ = (int) Double.parseDouble(unloadedPiggy.get(2));
                                 dimension = unloadedPiggy.get(3);
                                 playerName = unloadedPiggy.get(5);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            } catch (Exception e) {}
                             sendMessage(ctx, posX, posY, posZ, dimension, playerName);
                             playerPigsFound = true;
                         }

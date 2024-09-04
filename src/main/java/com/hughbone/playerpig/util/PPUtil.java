@@ -2,8 +2,9 @@ package com.hughbone.playerpig.util;
 
 import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.commands.PigremoveallCommand;
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -11,8 +12,6 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
@@ -96,12 +95,10 @@ public class PPUtil {
         playerPig.setSilent(true);
         playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
         playerPig.resetPortalCooldown();
-        playerPig.saddle(null);
+        playerPig.saddle(new ItemStack(Items.SADDLE), null);
 
         ItemStack skull = Items.PLAYER_HEAD.getDefaultStack();
-        NbtCompound nbtCompound = new NbtCompound();
-        nbtCompound.put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), (GameProfile) player.getGameProfile()));
-        skull.setNbt(nbtCompound);
+        skull.set(DataComponentTypes.PROFILE, new ProfileComponent(player.getGameProfile()));
         playerPig.equipStack(EquipmentSlot.HEAD, skull);
 
         // Mount pig to entity player was riding

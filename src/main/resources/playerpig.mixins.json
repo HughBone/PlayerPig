@@ -2,14 +2,14 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.hughbone.playerpig.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "PathAwareEntityMixin",
+    "EntityMixin",
+    "LeashableMixin",
     "MinecraftServerMixin",
     "PlayerManagerMixin",
-    "EntityMixin",
-    "ServerPlayerEntityMixin",
-    "PlayerPigMixin"
+    "PlayerPigMixin",
+    "ServerPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

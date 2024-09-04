@@ -109,7 +109,7 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
         try {
             if (playerPig) {
                 if (source.getTypeRegistryEntry().matchesKey(DamageTypes.OUT_OF_WORLD)) {
-                    this.teleport(0, 100, 0);
+                    this.teleport(0, 100, 0, false);
                     this.setHealth(20F);
                     this.setVelocity(Vec3d.ZERO);
                 }
