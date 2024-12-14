@@ -67,8 +67,8 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 
 	@Inject(at = @At("HEAD"), method = "updateRenderState(Lnet/minecraft/entity/passive/PigEntity;Lnet/minecraft/client/render/entity/state/PigEntityRenderState;F)V")
 	public void updateRenderState(PigEntity pigEntity, PigEntityRenderState pigEntityRenderState, float f, CallbackInfo ci) {
-
-		Identifier playerPigId = ((MyRenderState) pigEntity).getIdentifier();
+		// Set pigEntityRenderState based on id
+		Identifier playerPigId = ClientUtil.pigToIdMap.get(pigEntity.getUuid());
 		((MyRenderState) pigEntityRenderState).setIdentifier(playerPigId);
 
 		if (!pigEntity.hasCustomName() || ClientUtil.chillout || playerPigId != null) {
@@ -89,7 +89,7 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 				GameProfile profile = profileComp.gameProfile();
 				PlayerSkinProvider skinProvider = MinecraftClient.getInstance().getSkinProvider();
 
-				// Gotta enable lock here
+				// gotta enable lock here
 				ClientUtil.chillout = true;
 
 				skinProvider.fetchSkinTextures(profile).thenAcceptAsync((skinTexturesOptional) -> {
@@ -104,6 +104,7 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 						return;
 					}
 
+					// Get playerTexture
 					BufferedImage playerTexture = null;
 					try {
 						ResourceManager rm = MinecraftClient.getInstance().getResourceManager();
@@ -125,12 +126,10 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 						e.printStackTrace();
 					}
 
+					// Add new identifier w/ texture to hashmap
 					if (playerTexture != null) {
 						Identifier newId = getNewIdentifier(playerTexture, skinTextures.texture().getPath());
-						if (newId != null) {
-							((MyRenderState) pigEntity).setIdentifier(newId);
-							((MyRenderState) pigEntityRenderState).setIdentifier(newId);
-						}
+						ClientUtil.pigToIdMap.put(pigEntity.getUuid(), newId);
 					}
 
 					ClientUtil.chillout = false;
@@ -143,10 +142,8 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 	private Identifier getNewIdentifier(BufferedImage playerTexture, String id_string) {
 		try {
 			// Create a new BufferedImage with the same type (TYPE_INT_ARGB) as pigTexture
-			System.out.println(1);
 			BufferedImage pigTextureCopy = new BufferedImage(pigTexture.getWidth(), pigTexture.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
-			System.out.println(2);
 			// Copy the pixel data from the original pigTexture into pigTextureCopy
 			pigTextureCopy.setRGB(
 				0, 0, pigTexture.getWidth(), pigTexture.getHeight(),
@@ -154,8 +151,7 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 				null, 0, pigTexture.getWidth()), 0, pigTexture.getWidth()
 			);
 
-			System.out.println(3);
-			// Create a subimage of the playerTexture to get the region (0,0) to (31,15)
+			// Create a subimage of the playerTexture
 			BufferedImage subImage = playerTexture.getSubimage(0, 0, 32, 16);
 
 			// Create a Graphics2D object to draw onto the pigTextureCopy
@@ -180,8 +176,6 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 			// Read byteArray to image
 			NativeImage nativeImage = NativeImage.read(imageData);
 			MinecraftClient.getInstance().getTextureManager().registerTexture(newIdentifier, new NativeImageBackedTexture(nativeImage));
-
-			System.out.println(4);
 
 			return newIdentifier;
 		} catch (Exception e) {

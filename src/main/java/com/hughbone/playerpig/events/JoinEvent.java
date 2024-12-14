@@ -37,10 +37,10 @@ public class JoinEvent {
                 player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 20 * 20, 0, false, false));
             }
 
-//            PPUtil.pigList.remove(playerUUID);
+            PPUtil.pigList.remove(playerUUID);
             // Remove pig if inside loaded chunks
             if (!matchingPig.isRemoved()) {
-//                matchingPig.remove(Entity.RemovalReason.DISCARDED);
+                matchingPig.remove(Entity.RemovalReason.DISCARDED);
             }
         }
     }

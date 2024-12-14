@@ -3,14 +3,10 @@
   "package": "com.hughbone.playerpig.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "PigEntityMixin",
     "PigEntityRendererMixin",
     "PigEntityRenderStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "PigEntityMixin"
-  ]
+  }
 }
