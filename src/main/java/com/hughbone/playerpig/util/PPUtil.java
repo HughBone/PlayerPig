@@ -7,6 +7,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
@@ -75,7 +76,7 @@ public class PPUtil {
         }
 
         ServerWorldAccess world = (ServerWorldAccess) player.getWorld();
-        PigEntity playerPig = EntityType.PIG.create(world.toServerWorld());
+        PigEntity playerPig = EntityType.PIG.create(world.toServerWorld(), SpawnReason.MOB_SUMMONED);
         if (playerPig == null) {
             return;
         }

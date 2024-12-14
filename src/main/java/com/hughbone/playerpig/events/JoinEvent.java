@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.passive.PigEntity;
@@ -25,7 +26,7 @@ public class JoinEvent {
             }
             // Drop lead if pig was leaded
             if (matchingPig.isLeashed()) {
-                ItemEntity item = EntityType.ITEM.create(player.getWorld());
+                ItemEntity item = EntityType.ITEM.create(player.getWorld(), SpawnReason.MOB_SUMMONED);
                 item.setStack(new ItemStack(Items.LEAD, 1));
                 item.updatePosition(matchingPig.getX(), matchingPig.getY(), matchingPig.getZ());
                 item.updateTrackedPosition(matchingPig.getX(), matchingPig.getY(), matchingPig.getZ());
@@ -36,10 +37,10 @@ public class JoinEvent {
                 player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 20 * 20, 0, false, false));
             }
 
-            PPUtil.pigList.remove(playerUUID);
+//            PPUtil.pigList.remove(playerUUID);
             // Remove pig if inside loaded chunks
             if (!matchingPig.isRemoved()) {
-                matchingPig.remove(Entity.RemovalReason.DISCARDED);
+//                matchingPig.remove(Entity.RemovalReason.DISCARDED);
             }
         }
     }

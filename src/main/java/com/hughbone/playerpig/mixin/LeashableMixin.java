@@ -3,6 +3,7 @@ package com.hughbone.playerpig.mixin;
 import com.hughbone.playerpig.PlayerPigExt;
 import net.minecraft.entity.*;
 import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,7 +15,7 @@ public interface LeashableMixin {
 
     // Disable lead breaking
     @Inject(method = "tickLeash", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Leashable;detachLeash()V"), cancellable = true)
-    private static <E extends Entity & Leashable> void tickLeash(E entity, CallbackInfo ci) {
+    private static <E extends Entity & Leashable> void tickLeash(ServerWorld world, E entity, CallbackInfo ci) {
         if (entity instanceof PigEntity pig
             && ((PlayerPigExt) pig).isPlayerPig()
         ) {
