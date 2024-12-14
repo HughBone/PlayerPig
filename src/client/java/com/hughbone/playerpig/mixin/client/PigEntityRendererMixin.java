@@ -160,9 +160,10 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 			g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
 			// Draw the subimage onto pigTextureCopy at position (0,0)
 			g.drawImage(subImage, 0, 0, null);
-			// Prevent fresh animations blinking weirdness
+			// Prevent fresh animations weirdness
 			g.setComposite(AlphaComposite.Clear);
 			g.fillRect(0, 0, 8, 8);
+			g.fillRect(24, 0, 8, 8);
 			// need to do this
 			g.dispose();
 
