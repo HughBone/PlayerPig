@@ -20,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
+
 
 // Adds playerPig, playerName, and playerUUID tags
 @Mixin(PigEntity.class)
@@ -47,10 +49,14 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
 
     @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
     public void readCustomDataFromTag (NbtCompound nbt, CallbackInfo ci) {
-        playerPig = nbt.getBoolean("playerPig");
+        Optional<Boolean> ppOptional = nbt.getBoolean("playerPig");
+        if (ppOptional.isEmpty()) return;
+
+        playerPig = ppOptional.get();
+
         if (playerPig) {
-            matchingPlayerName = nbt.getString("playerName");
-            matchingPlayerUUID = nbt.getString("playerUUID");
+            matchingPlayerName = nbt.getString("playerName").get();
+            matchingPlayerUUID = nbt.getString("playerUUID").get();
         }
     }
 

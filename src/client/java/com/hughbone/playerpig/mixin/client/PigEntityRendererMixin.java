@@ -36,19 +36,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 @Mixin(PigEntityRenderer.class)
-public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<PigEntity, PigEntityRenderState, PigEntityModel> {
+public abstract class PigEntityRendererMixin extends MobEntityRenderer<PigEntity, PigEntityRenderState, PigEntityModel> {
 
-	@Shadow @Final private static Identifier TEXTURE;
 	@Unique private static BufferedImage pigTexture;
 
-	public PigEntityRendererMixin(EntityRendererFactory.Context context, PigEntityModel model, PigEntityModel babyModel, float shadowRadius) {
-		super(context, model, babyModel, shadowRadius);
+	public PigEntityRendererMixin(EntityRendererFactory.Context context, PigEntityModel entityModel, float f) {
+		super(context, entityModel, f);
 	}
 
 	@Inject(at = @At("TAIL"), method = "<init>")
 	public void init(EntityRendererFactory.Context context, CallbackInfo ci) {
 		try {
-			InputStream inputStream = MinecraftClient.getInstance().getResourceManager().getResource(TEXTURE).get().getInputStream();
+			Identifier PIG_TEXTURE = Identifier.ofVanilla("textures/entity/pig/temperate_pig.png");
+			InputStream inputStream = MinecraftClient.getInstance().getResourceManager().getResource(PIG_TEXTURE).get().getInputStream();
 			pigTexture = ImageIO.read(inputStream);
 		} catch (Exception e) {
 			System.out.println("womp womp pigtexture is null");
@@ -60,8 +60,6 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 		Identifier id = ((MyRenderState) pigEntityRenderState).getIdentifier();
 		if (id != null) {
 			cir.setReturnValue(id);
-		} else {
-			cir.setReturnValue(TEXTURE);
 		}
 	}
 
@@ -93,46 +91,51 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 				ClientUtil.chillout = true;
 
 				skinProvider.fetchSkinTextures(profile).thenAcceptAsync((skinTexturesOptional) -> {
-					if (skinTexturesOptional.isEmpty()) {
-						ClientUtil.chillout = false;
-						return;
-					}
-
-					SkinTextures skinTextures = skinTexturesOptional.get();
-					if (skinTextures.texture() == null) {
-						ClientUtil.chillout = false;
-						return;
-					}
-
-					// Get playerTexture
-					BufferedImage playerTexture = null;
-					try {
-						ResourceManager rm = MinecraftClient.getInstance().getResourceManager();
-						TextureManager tm = MinecraftClient.getInstance().getTextureManager();
-						AbstractTexture texture = tm.getTexture(skinTextures.texture());
-
-						if (texture instanceof NativeImageBackedTexture nativeImageTexture) {
-							NativeImage nativeImage = nativeImageTexture.getImage();
-							if (nativeImage != null) {
-								playerTexture = nativeToBufferedImage(nativeImage);
-							}
-						} else if (rm.getResource(skinTextures.texture()).isPresent()) {
-							InputStream inputStream = rm.getResource(skinTextures.texture()).get().getInputStream();
-							if (inputStream != null) {
-								playerTexture = ImageIO.read(inputStream);
-							}
+					MinecraftClient.getInstance().execute(() -> {
+						if (skinTexturesOptional.isEmpty()) {
+							ClientUtil.chillout = false;
+							return;
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 
-					// Add new identifier w/ texture to hashmap
-					if (playerTexture != null) {
-						Identifier newId = getNewIdentifier(playerTexture, skinTextures.texture().getPath());
-						ClientUtil.pigToIdMap.put(pigEntity.getUuid(), newId);
-					}
+						SkinTextures skinTextures = skinTexturesOptional.get();
+						if (skinTextures.texture() == null) {
+							ClientUtil.chillout = false;
+							return;
+						}
 
-					ClientUtil.chillout = false;
+						// Get playerTexture
+						BufferedImage playerTexture = null;
+						try {
+							ResourceManager rm = MinecraftClient.getInstance().getResourceManager();
+							TextureManager tm = MinecraftClient.getInstance().getTextureManager();
+							AbstractTexture texture = tm.getTexture(skinTextures.texture());
+
+							if (texture instanceof NativeImageBackedTexture nativeImageTexture) {
+								NativeImage nativeImage = nativeImageTexture.getImage();
+								if (nativeImage != null) {
+									playerTexture = nativeToBufferedImage(nativeImage);
+								}
+							} else if (rm.getResource(skinTextures.texture()).isPresent()) {
+								InputStream inputStream = rm.getResource(skinTextures.texture()).get().getInputStream();
+								if (inputStream != null) {
+									playerTexture = ImageIO.read(inputStream);
+								}
+							}
+						} catch (Exception e) {
+							System.out.println("problem getting player texture");
+							e.printStackTrace();
+							ClientUtil.chillout = false;
+							return;
+						}
+
+						// Add new identifier w/ texture to hashmap
+						if (playerTexture != null) {
+							Identifier newId = getNewIdentifier(playerTexture, skinTextures.texture().getPath());
+							ClientUtil.pigToIdMap.put(pigEntity.getUuid(), newId);
+						}
+
+						ClientUtil.chillout = false;
+					});
 				});
 			}
 		}
@@ -176,7 +179,7 @@ public abstract class PigEntityRendererMixin extends AgeableMobEntityRenderer<Pi
 			Identifier newIdentifier = Identifier.of("playerpig", id_string);
 			// Read byteArray to image
 			NativeImage nativeImage = NativeImage.read(imageData);
-			MinecraftClient.getInstance().getTextureManager().registerTexture(newIdentifier, new NativeImageBackedTexture(nativeImage));
+			MinecraftClient.getInstance().getTextureManager().registerTexture(newIdentifier, new NativeImageBackedTexture(newIdentifier::toString, nativeImage));
 
 			return newIdentifier;
 		} catch (Exception e) {

@@ -96,7 +96,7 @@ public class PPUtil {
         playerPig.setSilent(true);
         playerPig.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 2147483647, 5, false, false));
         playerPig.resetPortalCooldown();
-        playerPig.saddle(new ItemStack(Items.SADDLE), null);
+        playerPig.equipStack(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
 
         ItemStack skull = Items.PLAYER_HEAD.getDefaultStack();
         skull.set(DataComponentTypes.PROFILE, new ProfileComponent(player.getGameProfile()));
