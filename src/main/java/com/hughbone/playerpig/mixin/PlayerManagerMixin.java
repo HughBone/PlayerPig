@@ -44,7 +44,7 @@ public class PlayerManagerMixin {
         PigEntity matchingPig = PPUtil.pigList.get(player.getUuidAsString());
         if (matchingPig != null) {
             player = null;
-            return (ServerWorld) matchingPig.getEntityWorld();
+            return (ServerWorld) matchingPig.getWorld();
         }
 
         // Else, get dimension from file

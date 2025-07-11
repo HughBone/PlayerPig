@@ -25,7 +25,7 @@ public abstract class EntityMixin {
     @Shadow public abstract String getUuidAsString();
     @Shadow @Nullable public abstract MinecraftServer getServer();
 
-    @ModifyArgs(method = "readNbt", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPos(DDD)V"))
+    @ModifyArgs(method = "readData", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPos(DDD)V"))
     private void readNbt(Args args) {
         if (this.type.equals(EntityType.PLAYER)) {
             // Get Position from piglist

@@ -5,7 +5,7 @@ import com.hughbone.playerpig.piglist.LoadPigList;
 import com.hughbone.playerpig.util.PPUtil;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.server.command.CommandManager;
@@ -40,7 +40,7 @@ public class PiglistCommand {
 
     public static void init() {
         // List all player pigs in memory
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(CommandManager.literal("piglist").executes(ctx -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> dispatcher.register(CommandManager.literal("piglist").executes(ctx -> {
 
             if (ctx.getSource().getPlayer().hasPermissionLevel(4) || ctx.getSource().getPlayer().getName().equals("HughBone")) { // HughBone is here for debugging
                 Thread thread = new Thread() {

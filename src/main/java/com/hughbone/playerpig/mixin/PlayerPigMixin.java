@@ -7,9 +7,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,7 @@ import com.hughbone.playerpig.PlayerPigExt;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -38,26 +40,24 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
         super(entityType, world);
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
-    public void writeCustomDataToTag (NbtCompound nbt, CallbackInfo ci) {
+    @ModifyVariable(method = "writeCustomData", at = @At("HEAD"), ordinal = 0)
+    public WriteView writeCustomDataToTag (WriteView view) {
         if (playerPig) {
-            nbt.putBoolean("playerPig", playerPig);
-            nbt.putString("playerName", matchingPlayerName);
-            nbt.putString("playerUUID", matchingPlayerUUID);
+            view.putBoolean("playerPig", true);
+            view.putString("playerName", matchingPlayerName);
+            view.putString("playerUUID", matchingPlayerUUID);
         }
+        return view;
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
-    public void readCustomDataFromTag (NbtCompound nbt, CallbackInfo ci) {
-        Optional<Boolean> ppOptional = nbt.getBoolean("playerPig");
-        if (ppOptional.isEmpty()) return;
-
-        playerPig = ppOptional.get();
-
-        if (playerPig) {
-            matchingPlayerName = nbt.getString("playerName").get();
-            matchingPlayerUUID = nbt.getString("playerUUID").get();
+    @ModifyVariable(method = "readCustomData", at = @At("HEAD"), ordinal = 0)
+    public ReadView readCustomDataFromTag (ReadView view) {
+        boolean ppOptional = view.getBoolean("playerPig", false);
+        if (ppOptional) {
+            matchingPlayerName = view.getString("playerName", "");
+            matchingPlayerUUID = view.getString("playerUUID", "");
         }
+        return view;
     }
 
     public boolean isPlayerPig() {

@@ -16,15 +16,15 @@ public interface LeashableMixin {
     // Disable lead breaking
     @Inject(method = "tickLeash", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Leashable;detachLeash()V"), cancellable = true)
     private static <E extends Entity & Leashable> void tickLeash(ServerWorld world, E entity, CallbackInfo ci) {
-        if (entity instanceof PigEntity pig
-            && ((PlayerPigExt) pig).isPlayerPig()
-        ) {
-            Entity entity2 = entity.getLeashHolder();
-            float f = entity.distanceTo(entity2);
-            entity.applyLeashElasticity(entity2, f);
-            entity.limitFallDistance();
-            ci.cancel();
-        }
+//        if (entity instanceof PigEntity pig
+//            && ((PlayerPigExt) pig).isPlayerPig()
+//        ) {
+//            Entity entity2 = entity.getLeashHolder();
+//            float f = entity.distanceTo(entity2);
+//            entity.applyLeashElasticity(entity2, f);
+//            entity.limitFallDistance();
+//            ci.cancel();
+//        }
     }
 
 }
