@@ -54,8 +54,9 @@ public abstract class PlayerPigMixin extends LivingEntity implements PlayerPigEx
     public ReadView readCustomDataFromTag (ReadView view) {
         boolean ppOptional = view.getBoolean("playerPig", false);
         if (ppOptional) {
-            matchingPlayerName = view.getString("playerName", "");
-            matchingPlayerUUID = view.getString("playerUUID", "");
+            this.playerPig = true;
+            this.matchingPlayerName = view.getString("playerName", "");
+            this.matchingPlayerUUID = view.getString("playerUUID", "");
         }
         return view;
     }

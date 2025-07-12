@@ -40,7 +40,7 @@ public class JoinEvent {
             PPUtil.pigList.remove(playerUUID);
             // Remove pig if inside loaded chunks
             if (!matchingPig.isRemoved()) {
-                matchingPig.remove(Entity.RemovalReason.DISCARDED);
+                matchingPig.discard();
             }
         }
     }
