@@ -33,7 +33,8 @@ public class PPUtil {
     public static void createDataFolder() {
         try {
             Files.createDirectory(Paths.get(System.getProperty("user.dir") + File.separator + "mods" + File.separator + "PlayerPig_Data"));
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     public static void deleteAllFiles() {
@@ -46,7 +47,8 @@ public class PPUtil {
                     child.delete();
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     public static void removeFile(String filename) {
@@ -65,17 +67,18 @@ public class PPUtil {
             cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + posX + " " + PosZ, server.getCommandSource());
 
             server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, server); // reset to original
-        } catch (InterruptedException | CommandSyntaxException e) {}
+        } catch (InterruptedException | CommandSyntaxException e) {
+        }
     }
 
     public static void spawnPlayerPig(ServerPlayerEntity player) {
         if (PPUtil.pigList.get(player.getUuidAsString()) != null
-            || player.isSpectator() || !PigremoveallCommand.allowPPSpawn
+                || player.isSpectator() || !PigremoveallCommand.allowPPSpawn
         ) {
             return;
         }
 
-        ServerWorldAccess world = (ServerWorldAccess) player.getWorld();
+        ServerWorldAccess world = (ServerWorldAccess) player.getEntityWorld();
         PigEntity playerPig = EntityType.PIG.create(world.toServerWorld(), SpawnReason.MOB_SUMMONED);
         if (playerPig == null) {
             return;
@@ -99,12 +102,12 @@ public class PPUtil {
         playerPig.equipStack(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
 
         ItemStack skull = Items.PLAYER_HEAD.getDefaultStack();
-        skull.set(DataComponentTypes.PROFILE, new ProfileComponent(player.getGameProfile()));
+        skull.set(DataComponentTypes.PROFILE, ProfileComponent.ofStatic(player.getGameProfile()));
         playerPig.equipStack(EquipmentSlot.HEAD, skull);
 
         // Mount pig to entity player was riding
         if (player.hasVehicle()) {
-            playerPig.startRiding(player.getVehicle(), true);
+            playerPig.startRiding(player.getVehicle(), true, true);
             player.dismountVehicle();
         }
     }

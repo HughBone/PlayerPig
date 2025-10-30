@@ -66,13 +66,14 @@ public class PiglistCommand {
                                 posZ = (int) Double.parseDouble(unloadedPiggy.get(2));
                                 dimension = unloadedPiggy.get(3);
                                 playerName = unloadedPiggy.get(5);
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                            }
                             sendMessage(ctx, posX, posY, posZ, dimension, playerName);
                             playerPigsFound = true;
                         }
 
                         for (PigEntity pigInList : PPUtil.pigList.values()) {
-                            sendMessage(ctx, pigInList.getBlockX(), pigInList.getBlockY(), pigInList.getBlockZ(), pigInList.getWorld().getRegistryKey().getValue().toString(), ((PlayerPigExt) pigInList).getPlayerName());
+                            sendMessage(ctx, pigInList.getBlockX(), pigInList.getBlockY(), pigInList.getBlockZ(), pigInList.getEntityWorld().getRegistryKey().getValue().toString(), ((PlayerPigExt) pigInList).getPlayerName());
                             playerPigsFound = true;
                         }
                         // Success messages

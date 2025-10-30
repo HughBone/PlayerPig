@@ -31,7 +31,7 @@ public class PigremoveallCommand {
                         CommandManager cm = new CommandManager(CommandManager.RegistrationEnvironment.ALL, CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup()));
                         ServerPlayerEntity player = null;
                         player = ctx.getSource().getPlayer();
-                        Iterable<ServerWorld> worlds = player.getServer().getWorlds();
+                        Iterable<ServerWorld> worlds = player.getEntityWorld().getServer().getWorlds();
 
                         ctx.getSource().getPlayer().sendMessage(Text.of("[PlayerPig] Removing all PlayerPigs (This may take a while...)"), false);
 
@@ -53,19 +53,20 @@ public class PigremoveallCommand {
                             }
                             try {
                                 Thread.sleep(500);
-                            } catch (InterruptedException e) {}
+                            } catch (InterruptedException e) {
+                            }
                         }
 
                         // Kill all in piglist
                         for (PigEntity piggy : PPUtil.pigList.values()) {
                             for (ServerWorld sw : worlds) {
                                 String dimension = sw.getRegistryKey().getValue().toString();
-                                if (piggy.getWorld().getRegistryKey().getValue().toString().equals(dimension)) {
+                                if (piggy.getEntityWorld().getRegistryKey().getValue().toString().equals(dimension)) {
                                     try {
-                                        boolean sendCommandFB = player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
-                                        player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getServer()); // set to false
+                                        boolean sendCommandFB = player.getEntityWorld().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
+                                        player.getEntityWorld().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, player.getEntityWorld().getServer()); // set to false
 
-                                        cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + (int)piggy.getX() + " " + (int)piggy.getZ(), player.getServer().getCommandSource());
+                                        cm.getDispatcher().execute("execute in " + dimension + " run forceload add " + (int) piggy.getX() + " " + (int) piggy.getZ(), player.getEntityWorld().getServer().getCommandSource());
 
                                         Thread.sleep(250);
                                         for (PigEntity piggy2 : PPUtil.pigList.values()) {
@@ -73,10 +74,11 @@ public class PigremoveallCommand {
                                         }
                                         Thread.sleep(250);
                                         player.sendMessage(Text.of("PlayerPig " + ((PlayerPigExt) piggy).getPlayerName() + " was removed."), false);
-                                        cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + (int)piggy.getX() + " " + (int)piggy.getZ(), player.getServer().getCommandSource());
+                                        cm.getDispatcher().execute("execute in " + dimension + " run forceload remove " + (int) piggy.getX() + " " + (int) piggy.getZ(), player.getEntityWorld().getServer().getCommandSource());
 
-                                        player.getServer().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getServer()); // reset to original
-                                    } catch (Exception e) {}
+                                        player.getEntityWorld().getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(sendCommandFB, player.getEntityWorld().getServer()); // reset to original
+                                    } catch (Exception e) {
+                                    }
                                 }
                             }
                         }

@@ -44,7 +44,7 @@ public class PlayerManagerMixin {
         PigEntity matchingPig = PPUtil.pigList.get(player.getUuidAsString());
         if (matchingPig != null) {
             player = null;
-            return (ServerWorld) matchingPig.getWorld();
+            return (ServerWorld) matchingPig.getEntityWorld();
         }
 
         // Else, get dimension from file
@@ -53,7 +53,7 @@ public class PlayerManagerMixin {
             for (List<String> unloadedPiggy : unloadedPigList) {
                 if (unloadedPiggy.get(4).equals(player.getUuidAsString())) {
 
-                    Iterable<ServerWorld> worlds = player.getServer().getWorlds();
+                    Iterable<ServerWorld> worlds = player.getEntityWorld().getServer().getWorlds();
                     for (ServerWorld sw : worlds) {
                         final String dimension = sw.getRegistryKey().getValue().toString();
                         if (unloadedPiggy.get(3).equals(dimension)) {
@@ -63,7 +63,7 @@ public class PlayerManagerMixin {
                     }
                 }
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return server.getWorld(key);

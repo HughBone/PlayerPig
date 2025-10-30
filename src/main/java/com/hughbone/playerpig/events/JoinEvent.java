@@ -2,7 +2,6 @@ package com.hughbone.playerpig.events;
 
 import com.hughbone.playerpig.util.PPUtil;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.SpawnReason;
@@ -22,15 +21,15 @@ public class JoinEvent {
         if (matchingPig != null) {
             // Mount player to what playerpig is riding
             if (matchingPig.hasVehicle()) {
-                player.startRiding(matchingPig.getVehicle(),true);
+                player.startRiding(matchingPig.getVehicle(), true, true);
             }
             // Drop lead if pig was leaded
             if (matchingPig.isLeashed()) {
-                ItemEntity item = EntityType.ITEM.create(player.getWorld(), SpawnReason.MOB_SUMMONED);
+                ItemEntity item = EntityType.ITEM.create(player.getEntityWorld(), SpawnReason.MOB_SUMMONED);
                 item.setStack(new ItemStack(Items.LEAD, 1));
                 item.updatePosition(matchingPig.getX(), matchingPig.getY(), matchingPig.getZ());
                 item.updateTrackedPosition(matchingPig.getX(), matchingPig.getY(), matchingPig.getZ());
-                player.getWorld().spawnEntity(item);
+                player.getEntityWorld().spawnEntity(item);
             }
             // Give player fire resistance for 20 seconds if on fire
             if (matchingPig.isOnFire()) {
