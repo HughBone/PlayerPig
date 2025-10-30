@@ -8,15 +8,15 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(PigEntityRenderState.class)
 public class PigEntityRenderStateMixin implements MyRenderState {
-    @Unique private Identifier identifier = null;
 
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
-    }
+  @Unique private Identifier identifier = null;
 
-    @Override
-    public void setIdentifier(Identifier id) {
-        this.identifier = id;
-    }
+  @Override public Identifier getIdentifier() {
+    return identifier;
+  }
+
+  @Override public void setIdentifier(Identifier id) {
+    this.identifier = id;
+  }
+
 }
