@@ -73,11 +73,7 @@ public class PPUtil {
     f.delete();
   }
 
-  public static void loadPPDataChunks(
-    MinecraftServer server,
-    String dimension,
-    int posX,
-    int PosZ)
+  public static void loadPPDataChunks(MinecraftServer server, String dimension, int posX, int PosZ)
   {
     try {
       CommandManager cm = new CommandManager(
