@@ -53,7 +53,7 @@ public class PigremoveallCommand {
               // Temporarily load chunk in correct dimension so EntityLoadEvent adds pig to
               // PigList
               for (ServerLevel sw : worlds) {
-                String dimension = sw.dimension().location().toString();
+                String dimension = sw.dimension().identifier().toString();
                 if (unloadedPiggy.get(3).equals(dimension)) {
                   PPUtil.loadPPDataChunks(ctx.getSource().getServer(), dimension, posX, posZ);
                   break;
@@ -68,8 +68,8 @@ public class PigremoveallCommand {
             // Kill all in piglist
             for (Pig piggy : PPUtil.pigList.values()) {
               for (ServerLevel sw : worlds) {
-                String dimension = sw.dimension().location().toString();
-                if (piggy.level().dimension().location().toString().equals(dimension)) {
+                String dimension = sw.dimension().identifier().toString();
+                if (piggy.level().dimension().identifier().toString().equals(dimension)) {
                   try {
                     // original value
                     boolean sendCommandFB =

@@ -49,7 +49,7 @@ public abstract class EntityMixin {
         if (unloadedPiggy.get(4).equals(this.getStringUUID())) {
           Iterable<ServerLevel> worlds = serverWorld.getServer().getAllLevels();
           for (ServerLevel sw : worlds) {
-            final String dimension = sw.dimension().location().toString();
+            final String dimension = sw.dimension().identifier().toString();
             if (unloadedPiggy.get(3).equals(dimension)) {
               args.set(0, Double.parseDouble(unloadedPiggy.get(0)));
               args.set(1, Double.parseDouble(unloadedPiggy.get(1)));

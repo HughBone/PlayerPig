@@ -107,7 +107,7 @@ public class PiglistCommand {
                   pigInList.getBlockX(),
                   pigInList.getBlockY(),
                   pigInList.getBlockZ(),
-                  pigInList.level().dimension().location().toString(),
+                  pigInList.level().dimension().identifier().toString(),
                   ((PlayerPigExt) pigInList).getPlayerName()
                 );
                 playerPigsFound = true;

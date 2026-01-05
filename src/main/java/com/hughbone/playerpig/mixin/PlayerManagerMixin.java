@@ -21,7 +21,8 @@ public abstract class PlayerManagerMixin {
 
   @Shadow public abstract MinecraftServer getServer();
 
-  @Inject(method = "placeNewPlayer", at = @At("HEAD")) private void injected(
+  @Inject(method = "placeNewPlayer", at = @At("HEAD"))
+  private void injected(
     Connection connection,
     ServerPlayer player,
     CommonListenerCookie clientData,
@@ -42,7 +43,7 @@ public abstract class PlayerManagerMixin {
         if (unloadedPiggy.get(4).equals(player.getStringUUID())) {
           Iterable<ServerLevel> worlds = this.getServer().getAllLevels();
           for (ServerLevel sw : worlds) {
-            final String dimension = sw.dimension().location().toString();
+            final String dimension = sw.dimension().identifier().toString();
             if (unloadedPiggy.get(3).equals(dimension)) {
               player.setServerLevel(sw);
               player.setPosRaw(

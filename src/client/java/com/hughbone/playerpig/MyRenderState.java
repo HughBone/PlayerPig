@@ -1,11 +1,11 @@
 package com.hughbone.playerpig;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface MyRenderState {
 
-  ResourceLocation getIdentifier();
+  Identifier getIdentifier();
 
-  void setIdentifier(ResourceLocation id);
+  void setIdentifier(Identifier id);
 
 }

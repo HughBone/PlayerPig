@@ -42,7 +42,7 @@ public class SavePigList extends Pig {
         file.write(piggy.getX() + "\n");
         file.write(piggy.getY() + "\n");
         file.write(piggy.getZ() + "\n");
-        file.write(piggy.level().dimension().location().toString() + "\n");
+        file.write(piggy.level().dimension().identifier().toString() + "\n");
         file.write(((PlayerPigExt) piggy).getPlayerName());
         file.close();
       } catch (Exception e) {
