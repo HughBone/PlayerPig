@@ -10,7 +10,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.entity.animal.pig.Pig;
 
 public class PiglistCommand {
 
@@ -68,7 +69,7 @@ public class PiglistCommand {
     CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> dispatcher.register(
       Commands.literal("piglist").executes(ctx -> {
 
-        if (ctx.getSource().getPlayer().hasPermissions(4) ||
+        if (ctx.getSource().getPlayer().permissions().hasPermission(Permissions.COMMANDS_ADMIN) ||
           ctx.getSource().getPlayer().getName().equals("HughBone"))
         { // HughBone is here for debugging
           Thread thread = new Thread() {
@@ -116,7 +117,10 @@ public class PiglistCommand {
                 ctx
                   .getSource()
                   .getPlayer()
-                  .displayClientMessage(Component.nullToEmpty("[PlayerPig] No player pigs found."), false);
+                  .displayClientMessage(
+                    Component.nullToEmpty("[PlayerPig] No player pigs found."),
+                    false
+                  );
               }
             }
           };
@@ -126,7 +130,10 @@ public class PiglistCommand {
           ctx
             .getSource()
             .getPlayer()
-            .displayClientMessage(Component.nullToEmpty("[PlayerPig] You need OP to use this command."), false);
+            .displayClientMessage(
+              Component.nullToEmpty(
+                "[PlayerPig] You need OP to use this command."), false
+            );
         }
         return 1;
       })));

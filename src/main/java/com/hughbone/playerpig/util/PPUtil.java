@@ -20,11 +20,10 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 public class PPUtil {
@@ -80,28 +79,29 @@ public class PPUtil {
         Commands.CommandSelection.ALL,
         Commands.createValidationContext(VanillaRegistries.createLookup())
       );
-      boolean sendCommandFB =
-        server.getGameRules().getRule(GameRules.RULE_SENDCOMMANDFEEDBACK).get(); // original value
-      server.getGameRules().getRule(GameRules.RULE_SENDCOMMANDFEEDBACK).set(false, server); // set to false
 
-      cm
-        .getDispatcher()
-        .execute(
-          "execute in " + dimension + " run forceload add " + posX + " " + PosZ,
-          server.createCommandSourceStack()
-        );
+      //      boolean sendCommandFB =
+      //        server.getGameRules().getRule(GameRules.SEND_COMMAND_FEEDBACK).get(); // original
+      //        value
+      //      server
+      //        .getGameRules()
+      //        .getRule(GameRules.SEND_COMMAND_FEEDBACK)
+      //        .set(false, server); // set to false
+
+      cm.getDispatcher().execute(
+        "execute in " + dimension + " run forceload add " + posX + " " + PosZ,
+        server.createCommandSourceStack()
+      );
       Thread.sleep(500);
-      cm
-        .getDispatcher()
-        .execute(
-          "execute in " + dimension + " run forceload remove " + posX + " " + PosZ,
-          server.createCommandSourceStack()
-        );
+      cm.getDispatcher().execute(
+        "execute in " + dimension + " run forceload remove " + posX + " " + PosZ,
+        server.createCommandSourceStack()
+      );
 
-      server
-        .getGameRules()
-        .getRule(GameRules.RULE_SENDCOMMANDFEEDBACK)
-        .set(sendCommandFB, server); // reset to original
+      //      server
+      //        .getGameRules()
+      //        .getRule(GameRules.SEND_COMMAND_FEEDBACK)
+      //        .set(sendCommandFB, server); // reset to original
     } catch (InterruptedException | CommandSyntaxException e) {
     }
   }
@@ -133,13 +133,7 @@ public class PPUtil {
     playerPig.setCustomNameVisible(true);
     playerPig.setCustomName(player.getName());
     playerPig.setSilent(true);
-    playerPig.addEffect(new MobEffectInstance(
-      MobEffects.RESISTANCE,
-      2147483647,
-      5,
-      false,
-      false
-    ));
+    playerPig.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 2147483647, 5, false, false));
     playerPig.setPortalCooldown();
     playerPig.setItemSlot(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
 

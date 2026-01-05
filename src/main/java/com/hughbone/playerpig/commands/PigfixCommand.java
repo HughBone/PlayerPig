@@ -6,9 +6,10 @@ import java.util.List;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Player;
 
 public class PigfixCommand {
@@ -18,16 +19,15 @@ public class PigfixCommand {
     CommandRegistrationCallback.EVENT.register((dispatcher, regirstryAccess, environment) -> {
       dispatcher.register(Commands
         .literal("pigfix")
-        .requires(source -> source.hasPermission(4))
+        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_ADMIN))
         .executes(ctx -> {
           Player player = ctx.getSource().getPlayer();
           if (player == null) {
             return 0;
           }
 
-          List<Entity> eList = player
-            .level()
-            .getEntities(player, player.getBoundingBox().inflate(4, 4, 4));
+          List<Entity> eList =
+            player.level().getEntities(player, player.getBoundingBox().inflate(4, 4, 4));
           for (Entity entity : eList) {
             if (entity.getType().equals(EntityType.PIG)) {
               Pig nearbyPig = (Pig) entity;
@@ -40,7 +40,10 @@ public class PigfixCommand {
                 ctx
                   .getSource()
                   .getPlayer()
-                  .displayClientMessage(Component.nullToEmpty("[PlayerPig] Piggy removed successfully."), false);
+                  .displayClientMessage(
+                    Component.nullToEmpty(
+                      "[PlayerPig] Piggy removed successfully."), false
+                  );
                 return 1;
               }
             }
@@ -48,7 +51,10 @@ public class PigfixCommand {
           ctx
             .getSource()
             .getPlayer()
-            .displayClientMessage(Component.nullToEmpty("[PlayerPig] No player pigs found."), false);
+            .displayClientMessage(
+              Component.nullToEmpty("[PlayerPig] No player pigs found."),
+              false
+            );
           return 1;
         }));
     });
