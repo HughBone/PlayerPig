@@ -24,8 +24,8 @@ public abstract class EntityMixin {
 
   @Shadow private Level level;
 
-  @ModifyArgs(method = "readData",
-    at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPos(DDD)V"))
+  @ModifyArgs(method = "load",
+    at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPosRaw(DDD)V"))
   private void readNbt(Args args) {
     if (!(this.level instanceof ServerLevel serverWorld)) {
       return;
