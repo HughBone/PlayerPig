@@ -4,9 +4,9 @@ import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.util.PPUtil;
 import java.util.List;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Pig;
 
 // Adds to PigList, fixes dimension change, fixes duplicate pig fuckyness
 public class EntityLoadEvent {
@@ -15,15 +15,15 @@ public class EntityLoadEvent {
     ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
       try {
         if (entity.getType().equals(EntityType.PIG) && ((PlayerPigExt) entity).isPlayerPig()) {
-          PigEntity pig = (PigEntity) entity;
+          Pig pig = (Pig) entity;
           final String matchingPlayerUUID = ((PlayerPigExt) pig).getPlayerUUID();
-          PigEntity matchingPig = PPUtil.pigList.get(matchingPlayerUUID);
-          final List<ServerPlayerEntity> playerList =
-            world.getServer().getPlayerManager().getPlayerList();
+          Pig matchingPig = PPUtil.pigList.get(matchingPlayerUUID);
+          final List<ServerPlayer> playerList =
+            world.getServer().getPlayerList().getPlayers();
 
           if (matchingPig != null) {
             // Remove duplicate (Matching pig, different UUID)
-            if (!matchingPig.getUuid().equals(pig.getUuid())) {
+            if (!matchingPig.getUUID().equals(pig.getUUID())) {
               pig.discard();
               return;
             }
@@ -34,14 +34,14 @@ public class EntityLoadEvent {
 
           if (!PPUtil.serverStopping) {
             // Remove loaded pig if matching player is online
-            for (ServerPlayerEntity player : playerList) {
-              if (player.isDisconnected()) {
+            for (ServerPlayer player : playerList) {
+              if (player.hasDisconnected()) {
                 continue;
               }
-              if (player.getUuidAsString().equals(matchingPlayerUUID)) {
+              if (player.getStringUUID().equals(matchingPlayerUUID)) {
                 try {
                   pig.discard();
-                  PPUtil.pigList.remove(player.getUuidAsString());
+                  PPUtil.pigList.remove(player.getStringUUID());
                   return;
                 } catch (Exception e) {
                   e.printStackTrace();

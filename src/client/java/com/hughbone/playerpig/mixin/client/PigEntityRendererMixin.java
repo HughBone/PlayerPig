@@ -3,30 +3,34 @@ package com.hughbone.playerpig.mixin.client;
 import com.hughbone.playerpig.ClientUtil;
 import com.hughbone.playerpig.MyRenderState;
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.platform.NativeImage;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
-import net.minecraft.block.AbstractSkullBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.PigEntityRenderer;
-import net.minecraft.client.render.entity.model.PigEntityModel;
-import net.minecraft.client.render.entity.state.PigEntityRenderState;
-import net.minecraft.client.texture.*;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.entity.player.SkinTextures;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PigModel;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.PigRenderer;
+import net.minecraft.client.renderer.entity.state.PigRenderState;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.SkinManager;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.block.AbstractSkullBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,31 +38,31 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(PigEntityRenderer.class)
+@Mixin(PigRenderer.class)
 public abstract class PigEntityRendererMixin
-  extends MobEntityRenderer<PigEntity, PigEntityRenderState, PigEntityModel>
+  extends MobRenderer<Pig, PigRenderState, PigModel>
 {
 
   @Unique private static BufferedImage pigTexture;
 
   public PigEntityRendererMixin(
-    EntityRendererFactory.Context context,
-    PigEntityModel entityModel,
+    EntityRendererProvider.Context context,
+    PigModel entityModel,
     float f)
   {
     super(context, entityModel, f);
   }
 
   @Inject(at = @At("TAIL"), method = "<init>")
-  public void init(EntityRendererFactory.Context context, CallbackInfo ci) {
+  public void init(EntityRendererProvider.Context context, CallbackInfo ci) {
     try {
-      Identifier PIG_TEXTURE = Identifier.ofVanilla("textures/entity/pig/temperate_pig.png");
-      InputStream inputStream = MinecraftClient
+      ResourceLocation PIG_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/pig/temperate_pig.png");
+      InputStream inputStream = Minecraft
         .getInstance()
         .getResourceManager()
         .getResource(PIG_TEXTURE)
         .get()
-        .getInputStream();
+        .open();
       pigTexture = ImageIO.read(inputStream);
     } catch (Exception e) {
       System.out.println("womp womp pigtexture is null");
@@ -66,30 +70,28 @@ public abstract class PigEntityRendererMixin
   }
 
   @Inject(at = @At("HEAD"),
-    method = "getTexture(Lnet/minecraft/client/render/entity/state/PigEntityRenderState;)" +
-      "Lnet/minecraft/util/Identifier;",
+    method = "getTextureLocation(Lnet/minecraft/client/renderer/entity/state/PigRenderState;)Lnet/minecraft/resources/ResourceLocation;",
     cancellable = true)
   public void getTexture(
-    PigEntityRenderState pigEntityRenderState,
-    CallbackInfoReturnable<Identifier> cir)
+    PigRenderState pigEntityRenderState,
+    CallbackInfoReturnable<ResourceLocation> cir)
   {
-    Identifier id = ((MyRenderState) pigEntityRenderState).getIdentifier();
+    ResourceLocation id = ((MyRenderState) pigEntityRenderState).getIdentifier();
     if (id != null) {
       cir.setReturnValue(id);
     }
   }
 
   @Inject(at = @At("HEAD"),
-    method = "updateRenderState(Lnet/minecraft/entity/passive/PigEntity;" +
-      "Lnet/minecraft/client/render/entity/state/PigEntityRenderState;F)V")
+    method = "extractRenderState(Lnet/minecraft/world/entity/animal/Pig;Lnet/minecraft/client/renderer/entity/state/PigRenderState;F)V")
   public void updateRenderState(
-    PigEntity pigEntity,
-    PigEntityRenderState pigEntityRenderState,
+    Pig pigEntity,
+    PigRenderState pigEntityRenderState,
     float f,
     CallbackInfo ci)
   {
     // Set pigEntityRenderState based on id
-    Identifier playerPigId = ClientUtil.pigToIdMap.get(pigEntity.getUuid());
+    ResourceLocation playerPigId = ClientUtil.pigToIdMap.get(pigEntity.getUUID());
     ((MyRenderState) pigEntityRenderState).setIdentifier(playerPigId);
 
     if (!pigEntity.hasCustomName() || ClientUtil.chillout || playerPigId != null) {
@@ -97,30 +99,30 @@ public abstract class PigEntityRendererMixin
     }
 
     // return if no head item, or already has id
-    ItemStack itemStack = pigEntity.getEquippedStack(EquipmentSlot.HEAD);
+    ItemStack itemStack = pigEntity.getItemBySlot(EquipmentSlot.HEAD);
     if (itemStack == null || itemStack.isEmpty()) {
       return;
     }
 
     Item item = itemStack.getItem();
     if (item instanceof BlockItem && ((BlockItem) item).getBlock() instanceof AbstractSkullBlock) {
-      ProfileComponent profileComp = itemStack.get(DataComponentTypes.PROFILE);
-      if (profileComp != null && profileComp.getGameProfile() != null) {
+      ResolvableProfile profileComp = itemStack.get(DataComponents.PROFILE);
+      if (profileComp != null && profileComp.partialProfile() != null) {
         // Potential player pig found!
-        GameProfile profile = profileComp.getGameProfile();
-        PlayerSkinProvider skinProvider = MinecraftClient.getInstance().getSkinProvider();
+        GameProfile profile = profileComp.partialProfile();
+        SkinManager skinProvider = Minecraft.getInstance().getSkinManager();
 
         // gotta enable lock here
         ClientUtil.chillout = true;
 
-        skinProvider.fetchSkinTextures(profile).thenAcceptAsync((skinTexturesOptional) -> {
-          MinecraftClient.getInstance().execute(() -> {
+        skinProvider.get(profile).thenAcceptAsync((skinTexturesOptional) -> {
+          Minecraft.getInstance().execute(() -> {
             if (skinTexturesOptional.isEmpty()) {
               ClientUtil.chillout = false;
               return;
             }
 
-            SkinTextures skinTextures = skinTexturesOptional.get();
+            PlayerSkin skinTextures = skinTexturesOptional.get();
             if (skinTextures.body().texturePath() == null) {
               ClientUtil.chillout = false;
               return;
@@ -129,18 +131,18 @@ public abstract class PigEntityRendererMixin
             // Get playerTexture
             BufferedImage playerTexture = null;
             try {
-              ResourceManager rm = MinecraftClient.getInstance().getResourceManager();
-              TextureManager tm = MinecraftClient.getInstance().getTextureManager();
+              ResourceManager rm = Minecraft.getInstance().getResourceManager();
+              TextureManager tm = Minecraft.getInstance().getTextureManager();
               AbstractTexture texture = tm.getTexture(skinTextures.body().texturePath());
 
-              if (texture instanceof NativeImageBackedTexture nativeImageTexture) {
-                NativeImage nativeImage = nativeImageTexture.getImage();
+              if (texture instanceof DynamicTexture nativeImageTexture) {
+                NativeImage nativeImage = nativeImageTexture.getPixels();
                 if (nativeImage != null) {
                   playerTexture = nativeToBufferedImage(nativeImage);
                 }
               } else if (rm.getResource(skinTextures.body().texturePath()).isPresent()) {
                 InputStream inputStream =
-                  rm.getResource(skinTextures.body().texturePath()).get().getInputStream();
+                  rm.getResource(skinTextures.body().texturePath()).get().open();
                 if (inputStream != null) {
                   playerTexture = ImageIO.read(inputStream);
                 }
@@ -154,9 +156,9 @@ public abstract class PigEntityRendererMixin
 
             // Add new identifier w/ texture to hashmap
             if (playerTexture != null) {
-              Identifier newId =
+              ResourceLocation newId =
                 getNewIdentifier(playerTexture, skinTextures.body().texturePath().getPath());
-              ClientUtil.pigToIdMap.put(pigEntity.getUuid(), newId);
+              ClientUtil.pigToIdMap.put(pigEntity.getUUID(), newId);
             }
 
             ClientUtil.chillout = false;
@@ -166,7 +168,7 @@ public abstract class PigEntityRendererMixin
     }
   }
 
-  @Unique private Identifier getNewIdentifier(BufferedImage playerTexture, String id_string) {
+  @Unique private ResourceLocation getNewIdentifier(BufferedImage playerTexture, String id_string) {
     try {
       // Create a new BufferedImage with the same type (TYPE_INT_ARGB) as pigTexture
       BufferedImage pigTextureCopy = new BufferedImage(
@@ -219,15 +221,15 @@ public abstract class PigEntityRendererMixin
       byte[] imageData = baos.toByteArray();
 
       // Unique id
-      Identifier newIdentifier = Identifier.of("playerpig", id_string);
+      ResourceLocation newIdentifier = ResourceLocation.fromNamespaceAndPath("playerpig", id_string);
       // Read byteArray to image
       NativeImage nativeImage = NativeImage.read(imageData);
-      MinecraftClient
+      Minecraft
         .getInstance()
         .getTextureManager()
-        .registerTexture(
+        .register(
           newIdentifier,
-          new NativeImageBackedTexture(newIdentifier::toString, nativeImage)
+          new DynamicTexture(newIdentifier::toString, nativeImage)
         );
 
       return newIdentifier;
@@ -252,7 +254,7 @@ public abstract class PigEntityRendererMixin
     // Copy the pixel data from NativeImage to the BufferedImage pixel array
     for (int y = 0; y < nativeImage.getHeight(); y++) {
       for (int x = 0; x < nativeImage.getWidth(); x++) {
-        int color = nativeImage.getColorArgb(x, y);  // Get the ARGB value from NativeImage
+        int color = nativeImage.getPixel(x, y);  // Get the ARGB value from NativeImage
         pixels[y * nativeImage.getWidth() + x] = color;  // Set the pixel in the BufferedImage
       }
     }

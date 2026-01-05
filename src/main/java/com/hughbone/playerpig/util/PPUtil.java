@@ -9,28 +9,28 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 public class PPUtil {
 
   public static boolean serverStopping = false;
-  public static HashMap<String, PigEntity> pigList = new HashMap<>();
+  public static HashMap<String, Pig> pigList = new HashMap<>();
   public static List<List<String>> UnloadedPigList = LoadPigList.getAllData();
 
   public static void createDataFolder() {
@@ -76,46 +76,46 @@ public class PPUtil {
   public static void loadPPDataChunks(MinecraftServer server, String dimension, int posX, int PosZ)
   {
     try {
-      CommandManager cm = new CommandManager(
-        CommandManager.RegistrationEnvironment.ALL,
-        CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup())
+      Commands cm = new Commands(
+        Commands.CommandSelection.ALL,
+        Commands.createValidationContext(VanillaRegistries.createLookup())
       );
       boolean sendCommandFB =
-        server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).get(); // original value
-      server.getGameRules().get(GameRules.SEND_COMMAND_FEEDBACK).set(false, server); // set to false
+        server.getGameRules().getRule(GameRules.RULE_SENDCOMMANDFEEDBACK).get(); // original value
+      server.getGameRules().getRule(GameRules.RULE_SENDCOMMANDFEEDBACK).set(false, server); // set to false
 
       cm
         .getDispatcher()
         .execute(
           "execute in " + dimension + " run forceload add " + posX + " " + PosZ,
-          server.getCommandSource()
+          server.createCommandSourceStack()
         );
       Thread.sleep(500);
       cm
         .getDispatcher()
         .execute(
           "execute in " + dimension + " run forceload remove " + posX + " " + PosZ,
-          server.getCommandSource()
+          server.createCommandSourceStack()
         );
 
       server
         .getGameRules()
-        .get(GameRules.SEND_COMMAND_FEEDBACK)
+        .getRule(GameRules.RULE_SENDCOMMANDFEEDBACK)
         .set(sendCommandFB, server); // reset to original
     } catch (InterruptedException | CommandSyntaxException e) {
     }
   }
 
-  public static void spawnPlayerPig(ServerPlayerEntity player) {
-    if (PPUtil.pigList.get(player.getUuidAsString()) != null ||
+  public static void spawnPlayerPig(ServerPlayer player) {
+    if (PPUtil.pigList.get(player.getStringUUID()) != null ||
       player.isSpectator() ||
       !PigremoveallCommand.allowPPSpawn)
     {
       return;
     }
 
-    ServerWorldAccess world = (ServerWorldAccess) player.getEntityWorld();
-    PigEntity playerPig = EntityType.PIG.create(world.toServerWorld(), SpawnReason.MOB_SUMMONED);
+    ServerLevelAccessor world = (ServerLevelAccessor) player.level();
+    Pig playerPig = EntityType.PIG.create(world.getLevel(), EntitySpawnReason.MOB_SUMMONED);
     if (playerPig == null) {
       return;
     }
@@ -123,34 +123,34 @@ public class PPUtil {
     PlayerPigExt playerPig1 = (PlayerPigExt) playerPig;
     playerPig1.setPlayerPig(true);
     playerPig1.setPlayerName(player.getName().toString());
-    playerPig1.setPlayerUUID(player.getUuid().toString());
+    playerPig1.setPlayerUUID(player.getUUID().toString());
 
-    BlockPos playerPos = player.getBlockPos();
-    playerPig.refreshPositionAndAngles(playerPos, player.getYaw(), player.getPitch());
-    world.spawnEntityAndPassengers(playerPig);
+    BlockPos playerPos = player.blockPosition();
+    playerPig.snapTo(playerPos, player.getYRot(), player.getXRot());
+    world.addFreshEntityWithPassengers(playerPig);
 
     // Set display name, make silent, make invincible, add portal cooldown
     playerPig.setCustomNameVisible(true);
     playerPig.setCustomName(player.getName());
     playerPig.setSilent(true);
-    playerPig.addStatusEffect(new StatusEffectInstance(
-      StatusEffects.RESISTANCE,
+    playerPig.addEffect(new MobEffectInstance(
+      MobEffects.RESISTANCE,
       2147483647,
       5,
       false,
       false
     ));
-    playerPig.resetPortalCooldown();
-    playerPig.equipStack(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
+    playerPig.setPortalCooldown();
+    playerPig.setItemSlot(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
 
-    ItemStack skull = Items.PLAYER_HEAD.getDefaultStack();
-    skull.set(DataComponentTypes.PROFILE, ProfileComponent.ofStatic(player.getGameProfile()));
-    playerPig.equipStack(EquipmentSlot.HEAD, skull);
+    ItemStack skull = Items.PLAYER_HEAD.getDefaultInstance();
+    skull.set(DataComponents.PROFILE, ResolvableProfile.createResolved(player.getGameProfile()));
+    playerPig.setItemSlot(EquipmentSlot.HEAD, skull);
 
     // Mount pig to entity player was riding
-    if (player.hasVehicle()) {
+    if (player.isPassenger()) {
       playerPig.startRiding(player.getVehicle(), true, true);
-      player.dismountVehicle();
+      player.removeVehicle();
     }
   }
 

@@ -1,21 +1,21 @@
 package com.hughbone.playerpig.mixin.client;
 
 import com.hughbone.playerpig.MyRenderState;
-import net.minecraft.client.render.entity.state.PigEntityRenderState;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.entity.state.PigRenderState;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(PigEntityRenderState.class)
+@Mixin(PigRenderState.class)
 public class PigEntityRenderStateMixin implements MyRenderState {
 
-  @Unique private Identifier identifier = null;
+  @Unique private ResourceLocation identifier = null;
 
-  @Override public Identifier getIdentifier() {
+  @Override public ResourceLocation getIdentifier() {
     return identifier;
   }
 
-  @Override public void setIdentifier(Identifier id) {
+  @Override public void setIdentifier(ResourceLocation id) {
     this.identifier = id;
   }
 

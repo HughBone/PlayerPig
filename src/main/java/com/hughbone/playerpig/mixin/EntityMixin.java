@@ -2,11 +2,11 @@ package com.hughbone.playerpig.mixin;
 
 import com.hughbone.playerpig.util.PPUtil;
 import java.util.List;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,14 +20,14 @@ public abstract class EntityMixin {
 
   @Shadow @Final private EntityType<?> type;
 
-  @Shadow public abstract String getUuidAsString();
+  @Shadow public abstract String getStringUUID();
 
-  @Shadow private World world;
+  @Shadow private Level level;
 
   @ModifyArgs(method = "readData",
     at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;setPos(DDD)V"))
   private void readNbt(Args args) {
-    if (!(this.world instanceof ServerWorld serverWorld)) {
+    if (!(this.level instanceof ServerLevel serverWorld)) {
       return;
     }
     if (!this.type.equals(EntityType.PLAYER)) {
@@ -35,7 +35,7 @@ public abstract class EntityMixin {
     }
 
     // Get Position from piglist
-    PigEntity matchingPig = PPUtil.pigList.get(this.getUuidAsString());
+    Pig matchingPig = PPUtil.pigList.get(this.getStringUUID());
     if (matchingPig != null) {
       args.set(0, matchingPig.getX());
       args.set(1, matchingPig.getY());
@@ -46,10 +46,10 @@ public abstract class EntityMixin {
     // Get Position from file
     try {
       for (List<String> unloadedPiggy : PPUtil.UnloadedPigList) {
-        if (unloadedPiggy.get(4).equals(this.getUuidAsString())) {
-          Iterable<ServerWorld> worlds = serverWorld.getServer().getWorlds();
-          for (ServerWorld sw : worlds) {
-            final String dimension = sw.getRegistryKey().getValue().toString();
+        if (unloadedPiggy.get(4).equals(this.getStringUUID())) {
+          Iterable<ServerLevel> worlds = serverWorld.getServer().getAllLevels();
+          for (ServerLevel sw : worlds) {
+            final String dimension = sw.dimension().location().toString();
             if (unloadedPiggy.get(3).equals(dimension)) {
               args.set(0, Double.parseDouble(unloadedPiggy.get(0)));
               args.set(1, Double.parseDouble(unloadedPiggy.get(1)));

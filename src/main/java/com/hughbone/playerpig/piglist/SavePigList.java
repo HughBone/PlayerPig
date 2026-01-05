@@ -8,14 +8,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.level.Level;
 
 //@Environment(EnvType.SERVER)
-public class SavePigList extends PigEntity {
+public class SavePigList extends Pig {
 
-  public SavePigList(EntityType<? extends PigEntity> entityType, World world) {
+  public SavePigList(EntityType<? extends Pig> entityType, Level world) {
     super(entityType, world);
   }
 
@@ -29,7 +29,7 @@ public class SavePigList extends PigEntity {
     } catch (Exception e) {
     }
 
-    for (PigEntity piggy : PPUtil.pigList.values()) {
+    for (Pig piggy : PPUtil.pigList.values()) {
       try {
         // File name is the pig's UUID
         BufferedWriter file = new BufferedWriter(new FileWriter(System.getProperty("user.dir") +
@@ -42,7 +42,7 @@ public class SavePigList extends PigEntity {
         file.write(piggy.getX() + "\n");
         file.write(piggy.getY() + "\n");
         file.write(piggy.getZ() + "\n");
-        file.write(piggy.getEntityWorld().getRegistryKey().getValue().toString() + "\n");
+        file.write(piggy.level().dimension().location().toString() + "\n");
         file.write(((PlayerPigExt) piggy).getPlayerName());
         file.close();
       } catch (Exception e) {

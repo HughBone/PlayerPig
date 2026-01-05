@@ -6,16 +6,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.List;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.animal.Pig;
 
 public class PiglistCommand {
 
   private static void sendMessage(
-    CommandContext<ServerCommandSource> ctx,
+    CommandContext<CommandSourceStack> ctx,
     int x,
     int y,
     int z,
@@ -23,13 +23,13 @@ public class PiglistCommand {
     String playerName)
   {
     try {
-      CommandManager cm = new CommandManager(
-        CommandManager.RegistrationEnvironment.ALL,
-        CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup())
+      Commands cm = new Commands(
+        Commands.CommandSelection.ALL,
+        Commands.createValidationContext(VanillaRegistries.createLookup())
       );
 
       String command = "tellraw " +
-        ctx.getSource().getPlayer().getNameForScoreboard() +
+        ctx.getSource().getPlayer().getScoreboardName() +
         " {\"text\":\"" +
         "(" +
         playerName +
@@ -57,7 +57,7 @@ public class PiglistCommand {
 
       System.out.println(command);
 
-      cm.getDispatcher().execute(command, ctx.getSource().getServer().getCommandSource());
+      cm.getDispatcher().execute(command, ctx.getSource().getServer().createCommandSourceStack());
     } catch (CommandSyntaxException e) {
       //            e.printStackTrace();
     }
@@ -66,9 +66,9 @@ public class PiglistCommand {
   public static void init() {
     // List all player pigs in memory
     CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> dispatcher.register(
-      CommandManager.literal("piglist").executes(ctx -> {
+      Commands.literal("piglist").executes(ctx -> {
 
-        if (ctx.getSource().getPlayer().hasPermissionLevel(4) ||
+        if (ctx.getSource().getPlayer().hasPermissions(4) ||
           ctx.getSource().getPlayer().getName().equals("HughBone"))
         { // HughBone is here for debugging
           Thread thread = new Thread() {
@@ -78,7 +78,7 @@ public class PiglistCommand {
               outer:
               for (List<String> unloadedPiggy : PPUtil.UnloadedPigList) {
 
-                for (PigEntity pigInList : PPUtil.pigList.values()) {
+                for (Pig pigInList : PPUtil.pigList.values()) {
                   if (((PlayerPigExt) pigInList).getPlayerUUID().equals(unloadedPiggy.get(4))) {
                     continue outer;
                   }
@@ -100,13 +100,13 @@ public class PiglistCommand {
                 playerPigsFound = true;
               }
 
-              for (PigEntity pigInList : PPUtil.pigList.values()) {
+              for (Pig pigInList : PPUtil.pigList.values()) {
                 sendMessage(
                   ctx,
                   pigInList.getBlockX(),
                   pigInList.getBlockY(),
                   pigInList.getBlockZ(),
-                  pigInList.getEntityWorld().getRegistryKey().getValue().toString(),
+                  pigInList.level().dimension().location().toString(),
                   ((PlayerPigExt) pigInList).getPlayerName()
                 );
                 playerPigsFound = true;
@@ -116,7 +116,7 @@ public class PiglistCommand {
                 ctx
                   .getSource()
                   .getPlayer()
-                  .sendMessage(Text.of("[PlayerPig] No player pigs found."), false);
+                  .displayClientMessage(Component.nullToEmpty("[PlayerPig] No player pigs found."), false);
               }
             }
           };
@@ -126,7 +126,7 @@ public class PiglistCommand {
           ctx
             .getSource()
             .getPlayer()
-            .sendMessage(Text.of("[PlayerPig] You need OP to use this command."), false);
+            .displayClientMessage(Component.nullToEmpty("[PlayerPig] You need OP to use this command."), false);
         }
         return 1;
       })));

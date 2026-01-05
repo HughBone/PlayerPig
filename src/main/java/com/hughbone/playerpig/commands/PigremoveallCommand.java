@@ -4,14 +4,14 @@ import com.hughbone.playerpig.PlayerPigExt;
 import com.hughbone.playerpig.util.PPUtil;
 import java.util.List;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.world.GameRules;
+import net.minecraft.commands.Commands;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.level.GameRules;
 
 public class PigremoveallCommand {
 
@@ -21,28 +21,28 @@ public class PigremoveallCommand {
 
     // Kills one player pig within 4 blocks of the player
     CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> dispatcher.register(
-      CommandManager
+      Commands
         .literal("pigremoveall")
-        .requires(source -> source.hasPermissionLevel(4))
+        .requires(source -> source.hasPermission(4))
         .executes(ctx -> {
           Thread thread = new Thread() {
             public void run() {
               allowPPSpawn = false; // stop player pigs from spawning
 
-              if (ctx.getSource().hasPermissionLevel(4)) {
-                CommandManager cm = new CommandManager(
-                  CommandManager.RegistrationEnvironment.ALL,
-                  CommandManager.createRegistryAccess(BuiltinRegistries.createWrapperLookup())
+              if (ctx.getSource().hasPermission(4)) {
+                Commands cm = new Commands(
+                  Commands.CommandSelection.ALL,
+                  Commands.createValidationContext(VanillaRegistries.createLookup())
                 );
-                ServerPlayerEntity player = null;
+                ServerPlayer player = null;
                 player = ctx.getSource().getPlayer();
-                Iterable<ServerWorld> worlds = player.getEntityWorld().getServer().getWorlds();
+                Iterable<ServerLevel> worlds = player.level().getServer().getAllLevels();
 
                 ctx
                   .getSource()
                   .getPlayer()
-                  .sendMessage(
-                    Text.of(
+                  .displayClientMessage(
+                    Component.nullToEmpty(
                       "[PlayerPig] Removing all PlayerPigs (This may take a while...)"), false
                   );
 
@@ -53,8 +53,8 @@ public class PigremoveallCommand {
 
                   // Temporarily load chunk in correct dimension so EntityLoadEvent adds pig to
                   // PigList
-                  for (ServerWorld sw : worlds) {
-                    String dimension = sw.getRegistryKey().getValue().toString();
+                  for (ServerLevel sw : worlds) {
+                    String dimension = sw.dimension().location().toString();
                     if (unloadedPiggy.get(3).equals(dimension)) {
                       PPUtil.loadPPDataChunks(ctx.getSource().getServer(), dimension, posX, posZ);
                       break;
@@ -67,27 +67,27 @@ public class PigremoveallCommand {
                 }
 
                 // Kill all in piglist
-                for (PigEntity piggy : PPUtil.pigList.values()) {
-                  for (ServerWorld sw : worlds) {
-                    String dimension = sw.getRegistryKey().getValue().toString();
+                for (Pig piggy : PPUtil.pigList.values()) {
+                  for (ServerLevel sw : worlds) {
+                    String dimension = sw.dimension().location().toString();
                     if (piggy
-                      .getEntityWorld()
-                      .getRegistryKey()
-                      .getValue()
+                      .level()
+                      .dimension()
+                      .location()
                       .toString()
                       .equals(dimension))
                     {
                       try {
                         boolean sendCommandFB = player
-                          .getEntityWorld()
+                          .level()
                           .getGameRules()
-                          .get(GameRules.SEND_COMMAND_FEEDBACK)
+                          .getRule(GameRules.RULE_SENDCOMMANDFEEDBACK)
                           .get(); // original value
                         player
-                          .getEntityWorld()
+                          .level()
                           .getGameRules()
-                          .get(GameRules.SEND_COMMAND_FEEDBACK)
-                          .set(false, player.getEntityWorld().getServer()); // set to false
+                          .getRule(GameRules.RULE_SENDCOMMANDFEEDBACK)
+                          .set(false, player.level().getServer()); // set to false
 
                         cm.getDispatcher().execute(
                           "execute in " +
@@ -96,16 +96,16 @@ public class PigremoveallCommand {
                             (int) piggy.getX() +
                             " " +
                             (int) piggy.getZ(),
-                          player.getEntityWorld().getServer().getCommandSource()
+                          player.level().getServer().createCommandSourceStack()
                         );
 
                         Thread.sleep(250);
-                        for (PigEntity piggy2 : PPUtil.pigList.values()) {
+                        for (Pig piggy2 : PPUtil.pigList.values()) {
                           piggy2.remove(Entity.RemovalReason.KILLED);
                         }
                         Thread.sleep(250);
-                        player.sendMessage(
-                          Text.of("PlayerPig " +
+                        player.displayClientMessage(
+                          Component.nullToEmpty("PlayerPig " +
                             ((PlayerPigExt) piggy).getPlayerName() +
                             " was removed."), false
                         );
@@ -116,16 +116,16 @@ public class PigremoveallCommand {
                             (int) piggy.getX() +
                             " " +
                             (int) piggy.getZ(),
-                          player.getEntityWorld().getServer().getCommandSource()
+                          player.level().getServer().createCommandSourceStack()
                         );
 
                         player
-                          .getEntityWorld()
+                          .level()
                           .getGameRules()
-                          .get(GameRules.SEND_COMMAND_FEEDBACK)
+                          .getRule(GameRules.RULE_SENDCOMMANDFEEDBACK)
                           .set(
                             sendCommandFB,
-                            player.getEntityWorld().getServer()
+                            player.level().getServer()
                           ); // reset to original
                       } catch (Exception e) {
                       }
@@ -134,8 +134,8 @@ public class PigremoveallCommand {
                 }
                 PPUtil.pigList.clear(); // Clear all elements from the list
                 PPUtil.deleteAllFiles(); // delete straggler files
-                ctx.getSource().getPlayer().sendMessage(
-                  Text.of(
+                ctx.getSource().getPlayer().displayClientMessage(
+                  Component.nullToEmpty(
                     "[PlayerPig] All PlayerPigs removed. (PlayerPigs will not spawn until the " +
                       "server reloads.)"), false
                 );
