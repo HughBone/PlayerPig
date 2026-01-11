@@ -78,9 +78,8 @@ public abstract class PigEntityRendererMixin extends MobRenderer<Pig, PigRenderS
     }
   }
 
-  // Ignore this error idk
   @Inject(at = @At("HEAD"),
-    method = "extractRenderState(Lnet/minecraft/world/entity/animal/Pig;" +
+    method = "extractRenderState(Lnet/minecraft/world/entity/animal/pig/Pig;" +
       "Lnet/minecraft/client/renderer/entity/state/PigRenderState;F)V")
   public void updateRenderState(
     Pig pigEntity,
