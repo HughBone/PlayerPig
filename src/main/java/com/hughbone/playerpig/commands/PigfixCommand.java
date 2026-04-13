@@ -40,7 +40,7 @@ public class PigfixCommand {
                 ctx
                   .getSource()
                   .getPlayer()
-                  .displayClientMessage(
+                  .sendSystemMessage(
                     Component.nullToEmpty(
                       "[PlayerPig] Piggy removed successfully."), false
                   );
@@ -51,7 +51,7 @@ public class PigfixCommand {
           ctx
             .getSource()
             .getPlayer()
-            .displayClientMessage(
+            .sendSystemMessage(
               Component.nullToEmpty("[PlayerPig] No player pigs found."),
               false
             );

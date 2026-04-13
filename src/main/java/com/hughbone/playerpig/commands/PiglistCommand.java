@@ -117,7 +117,7 @@ public class PiglistCommand {
                 ctx
                   .getSource()
                   .getPlayer()
-                  .displayClientMessage(
+                  .sendSystemMessage(
                     Component.nullToEmpty("[PlayerPig] No player pigs found."),
                     false
                   );
@@ -130,7 +130,7 @@ public class PiglistCommand {
           ctx
             .getSource()
             .getPlayer()
-            .displayClientMessage(
+            .sendSystemMessage(
               Component.nullToEmpty(
                 "[PlayerPig] You need OP to use this command."), false
             );

@@ -40,7 +40,7 @@ public class PigremoveallCommand {
             player = ctx.getSource().getPlayer();
             Iterable<ServerLevel> worlds = player.level().getServer().getAllLevels();
 
-            ctx.getSource().getPlayer().displayClientMessage(
+            ctx.getSource().getPlayer().sendSystemMessage(
               Component.nullToEmpty("[PlayerPig] Removing all PlayerPigs (This may take a while.." +
                 ".)"), false
             );
@@ -95,7 +95,7 @@ public class PigremoveallCommand {
                       piggy2.remove(Entity.RemovalReason.KILLED);
                     }
                     Thread.sleep(250);
-                    player.displayClientMessage(
+                    player.sendSystemMessage(
                       Component.nullToEmpty("PlayerPig " +
                         ((PlayerPigExt) piggy).getPlayerName() +
                         " was removed."), false
@@ -125,7 +125,7 @@ public class PigremoveallCommand {
             }
             PPUtil.pigList.clear(); // Clear all elements from the list
             PPUtil.deleteAllFiles(); // delete straggler files
-            ctx.getSource().getPlayer().displayClientMessage(
+            ctx.getSource().getPlayer().sendSystemMessage(
               Component.nullToEmpty(
                 "[PlayerPig] All PlayerPigs removed. (PlayerPigs will not spawn until the " +
                   "server reloads.)"), false
