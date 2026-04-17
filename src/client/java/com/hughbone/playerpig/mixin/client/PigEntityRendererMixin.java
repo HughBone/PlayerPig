@@ -53,13 +53,22 @@ public abstract class PigEntityRendererMixin extends MobRenderer<Pig, PigRenderS
 
   @Inject(at = @At("TAIL"), method = "<init>")
   public void init(EntityRendererProvider.Context context, CallbackInfo ci) {
+    ResourceManager rm = Minecraft.getInstance().getResourceManager();
     try {
+      var resource =
+        rm.getResource(Identifier.withDefaultNamespace("textures/entity/pig/pig_temperate.png"));
+      if (resource.isPresent()) {
+        pigTexture = ImageIO.read(resource.get().open());
+      }
       Identifier PIG_TEXTURE =
         Identifier.withDefaultNamespace("textures/entity/pig/temperate_pig.png");
       InputStream inputStream =
         Minecraft.getInstance().getResourceManager().getResource(PIG_TEXTURE).get().open();
       pigTexture = ImageIO.read(inputStream);
     } catch (Exception e) {
+      e.printStackTrace();
+    }
+    if (pigTexture == null) {
       System.out.println("womp womp pigtexture is null");
     }
   }
@@ -229,6 +238,7 @@ public abstract class PigEntityRendererMixin extends MobRenderer<Pig, PigRenderS
       return newIdentifier;
     } catch (Exception e) {
       System.out.println("problem creating new texture!");
+      //      e.printStackTrace();
     }
 
     return null;

@@ -4,6 +4,7 @@
   "package": "com.hughbone.playerpig.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "EntityAccessor",
     "EntityMixin",
     "LeashableMixin",
     "MinecraftServerMixin",

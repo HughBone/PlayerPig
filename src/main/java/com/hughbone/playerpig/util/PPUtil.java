@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import com.hughbone.playerpig.mixin.EntityAccessor;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -134,7 +135,7 @@ public class PPUtil {
     playerPig.setCustomName(player.getName());
     playerPig.setSilent(true);
     playerPig.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 2147483647, 5, false, false));
-    playerPig.setPortalCooldown();
+    ((EntityAccessor) playerPig).setPortalCooldown(0);
     playerPig.setItemSlot(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
 
     ItemStack skull = Items.PLAYER_HEAD.getDefaultInstance();
