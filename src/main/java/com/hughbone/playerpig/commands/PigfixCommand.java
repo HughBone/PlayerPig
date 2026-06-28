@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Player;
 
@@ -29,7 +30,7 @@ public class PigfixCommand {
           List<Entity> eList =
             player.level().getEntities(player, player.getBoundingBox().inflate(4, 4, 4));
           for (Entity entity : eList) {
-            if (entity.getType().equals(EntityType.PIG)) {
+            if (entity.getType().equals(EntityTypes.PIG)) {
               Pig nearbyPig = (Pig) entity;
               if (((PlayerPigExt) nearbyPig).isPlayerPig()) {
                 nearbyPig.remove(Entity.RemovalReason.DISCARDED);

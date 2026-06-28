@@ -6,6 +6,7 @@ import java.util.List;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.pig.Pig;
 
 // Adds to PigList, fixes dimension change, fixes duplicate pig fuckyness
@@ -14,7 +15,7 @@ public class EntityLoadEvent {
   public static void init() {
     ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
       try {
-        if (entity.getType().equals(EntityType.PIG) && ((PlayerPigExt) entity).isPlayerPig()) {
+        if (entity.getType().equals(EntityTypes.PIG) && ((PlayerPigExt) entity).isPlayerPig()) {
           Pig pig = (Pig) entity;
           final String matchingPlayerUUID = ((PlayerPigExt) pig).getPlayerUUID();
           Pig matchingPig = PPUtil.pigList.get(matchingPlayerUUID);

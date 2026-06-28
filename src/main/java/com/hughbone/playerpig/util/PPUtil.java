@@ -20,6 +20,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.item.ItemStack;
@@ -116,10 +117,8 @@ public class PPUtil {
     }
 
     ServerLevelAccessor world = (ServerLevelAccessor) player.level();
-    Pig playerPig = EntityType.PIG.create(world.getLevel(), EntitySpawnReason.MOB_SUMMONED);
-    if (playerPig == null) {
-      return;
-    }
+    Pig playerPig = EntityTypes.PIG.create(world.getLevel(), EntitySpawnReason.MOB_SUMMONED);
+    if (playerPig == null) return;
 
     PlayerPigExt playerPig1 = (PlayerPigExt) playerPig;
     playerPig1.setPlayerPig(true);

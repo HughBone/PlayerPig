@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
@@ -30,7 +31,7 @@ public abstract class EntityMixin {
     if (!(this.level instanceof ServerLevel serverWorld)) {
       return;
     }
-    if (!this.type.equals(EntityType.PLAYER)) {
+    if (!this.type.equals(EntityTypes.PLAYER)) {
       return;
     }
 

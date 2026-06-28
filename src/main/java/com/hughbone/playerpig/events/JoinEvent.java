@@ -7,6 +7,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +26,7 @@ public class JoinEvent {
       }
       // Drop lead if pig was leaded
       if (matchingPig.isLeashed()) {
-        ItemEntity item = EntityType.ITEM.create(player.level(), EntitySpawnReason.MOB_SUMMONED);
+        ItemEntity item = EntityTypes.ITEM.create(player.level(), EntitySpawnReason.MOB_SUMMONED);
         item.setItem(new ItemStack(Items.LEAD, 1));
         item.absSnapTo(matchingPig.getX(), matchingPig.getY(), matchingPig.getZ());
         item.syncPacketPositionCodec(matchingPig.getX(), matchingPig.getY(), matchingPig.getZ());
