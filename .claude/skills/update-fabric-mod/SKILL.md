@@ -45,7 +45,7 @@ In target `src/**/fabric.mod.json`, update `depends` block to match these:
 
 ## 5. Build to verify
 
-Run the build from the target mod directory. I have a bash alias, so can just do "build" and it will build.
+Run the build from the target mod directory with `./gradlew build --no-daemon`
 
 - A clean `BUILD SUCCESSFUL` means the update is complete and the jar in
   `build/libs/` is valid for the new version.
