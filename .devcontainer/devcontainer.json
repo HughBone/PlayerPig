@@ -1,0 +1,52 @@
+{
+  "name": "java-fabric",
+  "image": "localhost/java-fabric:latest",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.compile.nullAnalysis.mode": "automatic",
+        "claudeCode.initialPermissionMode": "bypassPermissions",
+        "claudeCode.allowDangerouslySkipPermissions": true
+      },
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle",
+        "Anthropic.claude-code"
+      ]
+    }
+  },
+  "initializeCommand": {
+    "hidden": "true",
+    "command": "\"${localWorkspaceFolder}/.devcontainer/prebuild.sh\""
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/home/.claude.json,target=/home/vscode/.claude.json,type=bind",
+    "source=${localWorkspaceFolder}/.devcontainer/home/.claude,target=/home/vscode/.claude,type=bind",
+    "source=${localWorkspaceFolder}/.devcontainer/home/.gradle,target=/home/vscode/.gradle,type=bind"
+  ],
+  "runArgs": [
+    "--device=/dev/dri",
+    "--device=/dev/snd",
+    "--security-opt=label=disable",
+    "--userns=keep-id",
+    "-v",
+    "${localWorkspaceFolder}/.devcontainer/tmp:/tmp",
+    "-v",
+    "${env:XDG_RUNTIME_DIR}/${env:WAYLAND_DISPLAY}:/tmp/${env:WAYLAND_DISPLAY}",
+    "-v",
+    "/tmp/.X11-unix:/tmp/.X11-unix",
+    "-v",
+    "/run/opengl-driver/share/glvnd/egl_vendor.d:/usr/share/glvnd/egl_vendor.d:ro",
+    "-v",
+    "${env:XDG_RUNTIME_DIR}/pulse/native:/tmp/pulse/native",
+    "-v",
+    "${env:XAUTHORITY}:/tmp/.Xauthority:ro"
+  ],
+  "containerEnv": {
+    "XDG_RUNTIME_DIR": "/tmp",
+    "WAYLAND_DISPLAY": "${env:WAYLAND_DISPLAY}",
+    "DISPLAY": "${env:DISPLAY}",
+    "XAUTHORITY": "/tmp/.Xauthority",
+    "PULSE_SERVER": "unix:/tmp/pulse/native"
+  }
+}
