@@ -26,7 +26,7 @@ public class PiglistCommand {
     try {
       Commands cm = new Commands(
         Commands.CommandSelection.ALL,
-        Commands.createValidationContext(VanillaRegistries.createLookup())
+        Commands.createValidationContext(VanillaRegistries.createWorldLookup())
       );
 
       String command = "tellraw " +

@@ -34,7 +34,7 @@ public class PigremoveallCommand {
 
             Commands cm = new Commands(
               Commands.CommandSelection.ALL,
-              Commands.createValidationContext(VanillaRegistries.createLookup())
+              Commands.createValidationContext(VanillaRegistries.createWorldLookup())
             );
             ServerPlayer player = null;
             player = ctx.getSource().getPlayer();
